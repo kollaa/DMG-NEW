@@ -3,25 +3,28 @@
     <form (ngSubmit)="onSubmit()" [formGroup]="loginForm">
       <div>
         <label for="email">Email:</label>
-        <input id="email" type="email" formControlName="email" />
+        <input id="email" placeholder="username" type="email" formControlName="email" />
         
         <!-- Using *ngIf for conditional rendering -->
         <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-          <small>Please enter a valid email.</small>
+          <div class="error-message">Please enter a valid email.</div>
         </div>
       </div>
   
       <div>
         <label for="password">Password:</label>
-        <input id="password" type="password" formControlName="password" />
+        <input id="password" placeholder="password" type="password" formControlName="password" />
         
         <!-- Using *ngIf for conditional rendering -->
         <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-          <small>Password is required.</small>
+          <div class="error-message">Password is required.</div>
         </div>
       </div>
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
   
-      <button type="submit" [disabled]="loginForm.invalid">Login</button>
+      <button type="submit" class="submit" [disabled]="loginForm.invalid">Login</button>
     </form>
 
     <div class="forgot-password">

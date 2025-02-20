@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth.service';
+import {  Router } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password',
@@ -10,33 +11,33 @@ import { AuthService } from '../auth.service';
   styleUrl: './forgot-password.component.css'
 })
 export class ForgotPasswordComponent {
-
+  errorMessage: string = '';
   forgotPasswordForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.forgotPasswordForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
+      username: ['', [Validators.required, Validators.email]]
     });
   }
 
   onForgotPassword(): void {
     if (this.forgotPasswordForm.valid) {
-      const email = this.forgotPasswordForm.value.email;
-      console.log('checking the email'+ email);
-      
-      this.authService.sendPasswordResetEmail(email).subscribe({
-        next: (response) => {
-          console.log('Reset link sent:', response.message);
-          alert('A password reset link has been sent to your email.');
+      const email = this.forgotPasswordForm.value;
+      console.log(email);
+      // Use AuthService to make the API call
+      this.authService.sendPasswordResetEmail(email).subscribe(
+        (response: any) => {
+          // Navigate to reset-password page with email as a query parameter
+          console.log("success" + response.email);
+          this.router.navigate(['/password-reset'], { queryParams: { email: response.email } });
         },
-        error: (error) => {
-          console.error('Error sending reset link:', error);
-          alert('An error occurred while sending the password reset email.');
-        },
-      });
-    } else {
-      alert('Please enter a valid email address.');
+        (err: any) => { 
+          this.errorMessage = err.error.error
+          console.log(this.errorMessage);
+        }
+      );
     }
+
   }
 
 }

@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-password-reset',
-  imports: [],
+  imports: [CommonModule,FormsModule, ReactiveFormsModule],
   templateUrl: './password-reset.component.html',
   styleUrl: './password-reset.component.css'
 })

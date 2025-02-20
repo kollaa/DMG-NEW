@@ -47,8 +47,33 @@
   }
 
   .forgot-password a {
-    padding-top: 10px;
     color: black;
     text-decoration: underline;
     cursor: pointer;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  .submit {
+    margin-bottom: 10px;
+  }
+
+  .small {
+    color: red;
+  }
+
+  #email {
+    border: ridge;
+    outline: none; 
+    background-color: transparent; 
+  }
+  
+  #email:hover {
+    outline: 2px solid #007bff; /* Blue outline on hover */
+    border: none;
+    border-radius: 4px; /* Optional: Slightly rounded corners */
   }
