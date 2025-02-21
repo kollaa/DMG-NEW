@@ -37,10 +37,10 @@ public class UserService {
                     return userRepository.findByUsername(user);
     }
 
-	public boolean updatePassword(String email, String newPassword) {
+	public boolean updatePassword(String email, String password) {
         Users user = userRepository.findByUsername(email);
         if (user != null) {
-            user.setPassword(passwordEncoder.encode(newPassword));  // Hash password before saving
+            user.setPassword(passwordEncoder.encode(password));  // Hash password before saving
             userRepository.save(user);
             return true;
         }

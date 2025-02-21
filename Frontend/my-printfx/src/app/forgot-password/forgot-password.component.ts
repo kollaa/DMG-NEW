@@ -29,7 +29,7 @@ export class ForgotPasswordComponent {
         (response: any) => {
           // Navigate to reset-password page with email as a query parameter
           console.log("success" + response.email);
-          this.router.navigate(['/password-reset'], { queryParams: { email: response.email } });
+          this.router.navigate(['/verify-otp'], { queryParams: { email: response.email } });
         },
         (err: any) => { 
           this.errorMessage = err.error.error

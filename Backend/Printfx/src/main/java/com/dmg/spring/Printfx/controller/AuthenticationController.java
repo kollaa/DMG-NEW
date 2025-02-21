@@ -28,7 +28,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-@CrossOrigin("http://localhost:4201")
+@CrossOrigin("http://localhost:4200")
 @RestController
 public class AuthenticationController {
 

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -12,20 +12,24 @@ import { CommonModule } from '@angular/common';
 })
 export class PasswordResetComponent {
   passwordResetForm: FormGroup;
-  token: string = '';
+  username: string = '';
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.passwordResetForm = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
     });
+  }
 
-    this.route.queryParams.subscribe((params) => {
-      this.token = params['token']; // Extract token from the query parameters
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.username = params['email'];
+      console.log('Email from query params:', this.username);
     });
   }
 
@@ -37,12 +41,12 @@ export class PasswordResetComponent {
         alert('Passwords do not match.');
         return;
       }
-      this.authService.resetPassword(this.token, password).subscribe({
-        next: (response) => {
+      this.authService.resetPassword(this.username, password).subscribe({
+        next: (response: any) => {
+          this.router.navigate(['login'])
           alert('Password reset successfully.');
-          console.log(response);
         },
-        error: (error) => {
+        error: (error: any) => {
           alert('An error occurred while resetting the password.');
           console.error(error);
         },

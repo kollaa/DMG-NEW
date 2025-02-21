@@ -29,12 +29,17 @@ export class AuthService {
   }
 
 
-  resetPassword(token: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, { token, password });
+  resetPassword(username: string, password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/password-reset`, { username, password },{responseType: 'text'});
   }
 
   sendPasswordResetEmail(credentials:{username: string}): Observable<any> {
     //console.log("email: ", username );  // Log the email value
     return this.http.post(`${this.apiUrl}/forgot-password`, credentials);
   }
+
+  verifyOtp(username:string, otp: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-otp`, { username, otp });
+  }
+
 }

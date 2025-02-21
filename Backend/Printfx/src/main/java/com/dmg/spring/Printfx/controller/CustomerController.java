@@ -18,6 +18,7 @@ import com.dmg.spring.Printfx.service.UserService;
 
 
 @RestController
+@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api/customers")
 public class CustomerController {
 	
@@ -86,14 +87,15 @@ public class CustomerController {
         }
     }
 	
-	 @PostMapping("/reset-password")
+	 @PostMapping("/password-reset")
 	    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
 	        String email = request.get("username");
-	        String newPassword = request.get("newPassword");
+	        System.out.println(email);
+	        String newPassword = request.get("password");
+	        System.out.println(newPassword);
 	        
 	        if (userService.findByUsername(email) == null) {
 	        	return ResponseEntity.badRequest().body("{\"error\": \"Invalid email\"}");
-
 	        }
 
 	        boolean success = userService.updatePassword(email, newPassword);
