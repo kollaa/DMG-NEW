@@ -40,7 +40,7 @@ public class UserService {
 	public boolean updatePassword(String email, String password) {
         Users user = userRepository.findByUsername(email);
         if (user != null) {
-            user.setPassword(passwordEncoder.encode(password));  // Hash password before saving
+            user.setPassword(password);  
             userRepository.save(user);
             return true;
         }

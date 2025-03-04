@@ -30,18 +30,18 @@ export class LoginComponent {
       const formValues = this.loginForm.value;
       console.log('Form Submitted:', formValues);
 
-      // Use form values for login
+      
       this.authService.login({ username: formValues.email, password: formValues.password }).subscribe(
         (response: any) => {
           if (response.token) {
-            localStorage.setItem('token', response.token);  // Store token in localStorage
-            //this.router.navigate(['/dashboard']);  // Redirect to dashboard upon success
+            localStorage.setItem('token', response.token);  
+            this.router.navigate(['/dashboard']); 
             console.log('Login Successful');
           }
         },
         (error) => {
           this.errorMessage = error.message;  // Display error message from the backend
-          console.error('Login failed:', error);  // Handle errors
+          console.error('Login failed:', error); 
         }
 
       );

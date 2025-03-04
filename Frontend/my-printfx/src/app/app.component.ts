@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
 
 @Component({
@@ -13,12 +14,28 @@ import { Router } from '@angular/router';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  user: any = null;
   
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {
+
+    this.authService.user$.subscribe(user =>
+    {
+      this.user = user;
+    }
+    )
+  }
   
   ngOnInit(): void {
-    // Redirect to the login page when the app starts
     this.router.navigate(['/login']);
   }
+
+  logout() {
+    this.authService.logOut();
+  }
+
+  loggedinUser() {
+    return this.authService.loggedinUser;
+  }
+
 }
 

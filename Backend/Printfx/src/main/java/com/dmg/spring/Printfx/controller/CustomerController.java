@@ -49,7 +49,7 @@ public class CustomerController {
             String token = jwtUtil.generateToken(user.get().getUsername());
   
             response.put("token", token);
-            response.put("email", user.get().getUsername());
+            response.put("username", user.get().getUsername());
             response.put("id", String.valueOf(user.get().getId()));
             response.put("message", "Login successful");
             return ResponseEntity.ok(response);

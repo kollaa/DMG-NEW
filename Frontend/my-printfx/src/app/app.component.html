@@ -1,6 +1,29 @@
-<div class = "app-container">
-  <nav class ="navbar">
-
+<div class="app-container">
+  
+  <nav class="navbar">
+    <!-- Left Side: Local Movies & Home -->
+    <div class="inline-container">
+      <i class="material-icons md-36">local_movies</i> 
+      <a class="nav-link" routerLink="login">Home</a>
+    </div>    
+  
+    <!-- Right Side: Login, Logout, User Info -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent1">
+      <ul class="navbar-nav">
+        <li class="nav-item active" *ngIf="loggedinUser()">
+          <i class="material-icons other_icon">person</i> {{ this.user }}
+        </li>
+        <li class="nav-item active" *ngIf="!loggedinUser()">
+          <a class="nav-link" routerLink="/login">Login</a>
+        </li>
+        <li class="nav-item active" *ngIf="loggedinUser()">
+          <a class="nav-link" (click)="logout()">Logout</a>
+        </li> 
+      </ul>
+    </div>
   </nav>
+  
   <router-outlet></router-outlet>
 </div>
+
+
