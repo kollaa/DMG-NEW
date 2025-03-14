@@ -12,13 +12,15 @@ import io.jsonwebtoken.security.Keys;
 public class JWTUtil {
 	
 	private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-	private static final long EXPIRATION_TIME = 86400000;
+	//private static final long EXPIRATION_TIME = 86400000;
 	
-	public static String generateToken(String email) {
+	public static String generateToken(String email, boolean rememberMe) {
+		long expirationTime = rememberMe ? 1000L * 60 * 60 * 24 * 7 : 1000L * 60 * 60;
+		
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SECRET_KEY)
                 .compact();
     }

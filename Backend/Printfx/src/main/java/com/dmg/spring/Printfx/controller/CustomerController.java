@@ -41,13 +41,15 @@ public class CustomerController {
         Optional<Users> user = userService.authenticate(
   
                 loginRequest.getUsername(),
-                loginRequest.getPassword()
+                loginRequest.getPassword(),
+                loginRequest.isRememberMe()
         );
         System.out.println(user);
         if (user.isPresent()) {
             // Generate JWT token if user is authenticated
-            String token = jwtUtil.generateToken(user.get().getUsername());
-  
+        	System.out.println("rememberme" + loginRequest.isRememberMe());
+            String token = JWTUtil.generateToken(user.get().getUsername(), user.get().isRememberMe());
+            
             response.put("token", token);
             response.put("username", user.get().getUsername());
             response.put("id", String.valueOf(user.get().getId()));

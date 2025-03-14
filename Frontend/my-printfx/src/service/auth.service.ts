@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
+import { Company } from '../Bean/company';
 
 @Injectable({
   providedIn: 'root',
@@ -25,22 +26,27 @@ export class AuthService {
 
   }
 
-  login(credentials: { username: string; password: string }): Observable<any> {
-    console.log("login" + credentials.username ) ;
-    return this.http.post<{ token: string; username: string }>(`${this.apiUrl}/login`, credentials).pipe(
+  login(credentials: { username: string; password: string; rememberMe?: boolean }): Observable<any> {
+    console.log("Login attempt by:", credentials.rememberMe);
+    
+    return this.http.post<{ token: string; username: string; rememberMe?: boolean}>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         if (response.token) {
-          localStorage.setItem('token', response.token);  
-          localStorage.setItem('username', response.username); 
-          console.log("User logged in successfully:", response.username);
-          console.log("User logged in successfully:", response.token);
+          if (credentials.rememberMe) {
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('username', response.username);
+          } else {
+            sessionStorage.setItem('token', response.token);
+            sessionStorage.setItem('username', response.username);
+          }   
           this.isLoggedIn = true;
-          this.loggedinUser=true;
+          this.loggedinUser = true;
         }
       }),
       catchError(this.handleError)
     );
   }
+  
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'An unknown error occurred!';
     
@@ -67,6 +73,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/verify-otp`, { username, otp });
   }
 
+  getCompanies(): Observable<Company[]> {
+    return this.http.get<Company[]>(`${this.apiUrl}/company`);
+  }
+
   logOut() {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('token');
@@ -74,12 +84,18 @@ export class AuthService {
       this.isLoggedIn = false;
       this.loggedinUser = false ;
       this.router.navigate(['/login'])
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('username');
     }
     this.userSubject.next(null);
   }
 
   getUser() {
     return this.userSubject.value;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
   }
 
 }

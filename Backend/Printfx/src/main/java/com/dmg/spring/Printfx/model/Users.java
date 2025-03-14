@@ -1,6 +1,7 @@
 package com.dmg.spring.Printfx.model;
 
 import java.util.Set;
+
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,8 +32,17 @@ public class Users {
 	
 	@Column(name = "us_approve")
 	private String approve;
-
 	
+	@Column(name = "us_rememberMe")
+	private Boolean rememberMe;
+
+	public Boolean isRememberMe() {
+		return rememberMe;
+	}
+
+	public void setRememberMe(Boolean rememberMe) {
+		this.rememberMe = rememberMe;
+	}
 
 	public String getApprove() {
 		return approve;
@@ -100,9 +110,9 @@ public class Users {
 
 	@Override
 	public String toString() {
-		return "Users [id=" + id + ", username=" + username + ", password=" + password + ", roleList=" + roleList + "]";
+		return "Users [id=" + id + ", username=" + username + ", password=" + password + ", approve=" + approve
+				+ ", rememberMe=" + rememberMe + ", roleList=" + roleList + "]";
 	}
 
-	
 
 }

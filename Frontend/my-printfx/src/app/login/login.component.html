@@ -1,5 +1,5 @@
 <div class="login-container">
-    <h3>Please enter username and password</h3>
+    <h2 class="loginHeader">Marketing Materials Hub</h2>
     <form (ngSubmit)="onSubmit()" [formGroup]="loginForm">
       <div>
         <label for="email">Email:</label>
@@ -25,9 +25,14 @@
       </div>
   
       <button type="submit" class="submit" [disabled]="loginForm.invalid">Login</button>
+      
+       <div class="remember-container">
+          <div class="remember-me">
+              <input  type="checkbox" formControlName="rememberMe"/> Remember Me
+          </div>
+          <div class="forgot-password">
+            <a routerLink="/forgotpassword" routerLinkActive="active">Forgot Password?</a>
+        </div>
+       </div>  
     </form>
-
-    <div class="forgot-password">
-        <a routerLink="/forgotpassword" routerLinkActive="active">Forgot Password?</a>
-    </div>
 </div>

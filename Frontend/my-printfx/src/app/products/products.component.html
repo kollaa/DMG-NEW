@@ -1,0 +1,9 @@
+<div class="products-container">
+    <h2>Products for {{ companyName }}</h2>
+    <ul>
+      @for (product of products; track product) {
+        <li>{{ product }}</li>
+      }
+    </ul>
+  </div>
+  

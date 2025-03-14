@@ -24,7 +24,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())  // New way to disable CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/customers/login","/authentication","/api/customers/forgot-password","/api/customers/password-reset","/api/customers/verify-otp").permitAll()
+                .requestMatchers("/api/customers/login","/authentication","/api/customers/forgot-password","/api/customers/password-reset","/api/customers/verify-otp","/api/customers/company").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

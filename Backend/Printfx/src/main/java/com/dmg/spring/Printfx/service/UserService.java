@@ -20,12 +20,13 @@ public class UserService {
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	
-	public Optional<Users> authenticate(String email, String password) {
+	public Optional<Users> authenticate(String email, String password, Boolean rememberMe) {
 	    // Find the user by email
 	    Users user = userRepository.findByUsername(email);
 	    System.out.println(user);
 	    // Check if the user exists and if the password matches
 	    if (user != null && user.getPassword().equals(password)) {
+	    	
 	        return Optional.of(user); // Return the user wrapped in an Optional if authentication is successful
 	    } else {
 	        return Optional.empty(); // Return an empty Optional if no user is found or password doesn't match

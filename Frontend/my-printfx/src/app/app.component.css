@@ -50,3 +50,30 @@
   color: black;
   text-decoration: underline;
 }
+
+.icon-image {
+  width: 36px;  /* Adjust the width as needed */
+  height: 36px; /* Adjust the height as needed */
+  margin-right: 8px;  /* Add some space between the image and text */
+  cursor: pointer;  /* Show pointer cursor on hover */
+}
+
+.nav-link {
+  text-decoration: none; /* Remove default underline */
+  display: inline-flex;
+  align-items: center;
+  color: inherit; /* Inherit color from parent */
+  cursor: pointer; /* Show pointer cursor on hover */
+}
+
+/* Styling the image inside the link */
+.icon-image {
+  width: 70px; /* Set the size of the image */
+  height: auto; /* Keep the aspect ratio */
+  transition: transform 0.3s ease; /* Add smooth transition for hover effect */
+}
+
+/* Hover effect on the image */
+.icon-image:hover {
+  transform: scale(1.1); /* Slightly enlarge the image on hover */
+}

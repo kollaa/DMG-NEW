@@ -1,1 +1,10 @@
-<p>print-fx works!</p>
+<H4 class="header">
+    DASHBOARD
+</H4>
+<div class="dashboard-container">
+    @for (company of companies; track company.id) {
+        <div class="company-card" (click)="goToProducts(company.id)">
+            {{ company.name }}
+        </div>
+    }
+</div>
