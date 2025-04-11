@@ -1,0 +1,40 @@
+<div class="add-company-container">
+    <h2>Add New Company</h2>
+    <form (ngSubmit)="addCompany()" #companyForm="ngForm" enctype="multipart/form-data">
+      <div>
+        <label for="name">Company Name</label>
+        <input
+          id="name"
+          type="text"
+          [(ngModel)]="company.name"
+          name="name"
+          #name="ngModel"
+          required
+          [class.is-invalid]="name.invalid && name.touched"
+        />
+        <div *ngIf="name.invalid && name.touched" class="error-message">
+          Company name is required.
+        </div>
+      </div>
+  
+      <div>
+        <label for="image">Upload Image</label>
+        <input
+          id="image"
+          type="file"
+          (change)="onImageSelected($event)"
+          required
+          [class.is-invalid]="imageInvalid"
+        />
+        <div *ngIf="imageInvalid" class="error-message">
+          Image is required.
+        </div>
+        <div *ngIf="imagePreview" class="preview">
+          <img [src]="imagePreview" alt="Preview" width="120" />
+        </div>
+      </div>
+  
+      <button type="submit" [disabled]="companyForm.invalid || !selectedFile">Add Company</button>
+    </form>
+  </div>
+  

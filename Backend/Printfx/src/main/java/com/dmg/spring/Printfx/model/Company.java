@@ -6,6 +6,21 @@ import jakarta.persistence.*;
 @Table(name = "companies")
 public class Company {
 	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Override
+	public String toString() {
+		return "Company [id=" + id + ", name=" + name + "]";
+	}
+
+	@Column(nullable = false, unique = true)
+    private String name;
+	
+	@Column(name = "image_url")
+    private String imageUrl;
+
 	public Long getId() {
 		return id;
 	}
@@ -22,16 +37,14 @@ public class Company {
 		this.name = name;
 	}
 
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Override
-	public String toString() {
-		return "Company [id=" + id + ", name=" + name + "]";
+	public String getImageUrl() {
+		return imageUrl;
 	}
 
-	@Column(nullable = false, unique = true)
-    private String name;
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+	
+	
 
 }

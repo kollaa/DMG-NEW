@@ -24,7 +24,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())  // New way to disable CSRF
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/customers/login","/authentication","/api/customers/forgot-password","/api/customers/password-reset","/api/customers/verify-otp","/api/customers/company").permitAll()
+                .requestMatchers("/api/customers/login","/authentication","/api/customers/forgot-password","/api/customers/password-reset","/api/customers/verify-otp","/api/customers/company","/api/customers/companies").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -48,6 +48,7 @@ public class SecurityConfig {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:4200") // Allow Angular frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };

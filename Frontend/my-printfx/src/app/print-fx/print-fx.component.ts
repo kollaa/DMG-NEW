@@ -14,11 +14,12 @@ import { CompanyService } from '../../service/company.service';
 export class PrintFxComponent {
 
   companies: Company[] = [];
+
  
-  
   constructor(private router:Router, private companyService: CompanyService) {
     console.log("Hello");
   }
+
 
   ngOnInit() {
     this.companyService.getCompanies().subscribe((data) => {
@@ -30,4 +31,11 @@ export class PrintFxComponent {
     this.router.navigate(['/products', CompanyId]);
   }
 
-}    
+  openAddCompanyForm() {
+    
+    console.log('Add Company form should open');
+    this.router.navigate(['/addcompany']);
+    
+  }
+
+}   

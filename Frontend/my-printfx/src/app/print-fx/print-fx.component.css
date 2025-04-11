@@ -31,3 +31,35 @@
     box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
     background-color: #e9ecef;
 }
+
+.company-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  
+  .add-company-btn-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .add-company-btn-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #28a745;  /* Green button color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-company-btn-container button:hover {
+    background-color: #218838;  /* Darker green on hover */
+  }
+  
+  .add-company-btn-container button:focus {
+    outline: none;
+  }
+  

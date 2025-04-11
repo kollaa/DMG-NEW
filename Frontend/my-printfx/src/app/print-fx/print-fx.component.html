@@ -1,10 +1,17 @@
 <H4 class="header">
-    DASHBOARD
+    ADMIN DASHBOARD
 </H4>
+
+
+<div class="add-company-btn-container">
+    <button (click)="openAddCompanyForm()">Add Company</button>
+</div>
+
 <div class="dashboard-container">
     @for (company of companies; track company.id) {
         <div class="company-card" (click)="goToProducts(company.id)">
-            {{ company.name }}
+            <img [src]="company.imageUrl" alt="{{ company.name }}" class="company-logo" />
         </div>
     }
 </div>
+

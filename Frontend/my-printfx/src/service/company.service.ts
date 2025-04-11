@@ -10,6 +10,7 @@ import { Company } from '../Bean/company';
 })
 export class CompanyService {
 
+
   private apiUrl = 'http://localhost:8080/api/customers';
 
   constructor(private http: HttpClient, private router: Router) { }
@@ -17,4 +18,10 @@ export class CompanyService {
   getCompanies(): Observable<Company[]> {
     return this.http.get<Company[]>(`${this.apiUrl}/company`);
   }
+
+  addCompany(formData: FormData): Observable<Company> {
+    return this.http.post<Company>(`${this.apiUrl}/companies`, formData);
+  }
+  
+  
 }
