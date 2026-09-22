@@ -1,0 +1,55 @@
+<div class="payment-wrapper">
+
+  <div *ngIf="loading" class="payment-loading">Loading order…</div>
+
+  <div *ngIf="!loading && errorMessage" class="payment-error">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading && order && !paid">
+
+    <h1 class="payment-title">Payment</h1>
+
+    <div class="payment-panel">
+      <div class="payment-row">
+        <div class="payment-thumb">
+          <img *ngIf="order.thumbnailDataUrl" [src]="order.thumbnailDataUrl" alt="{{ order.productName }} preview" />
+        </div>
+        <div class="payment-info">
+          <div class="payment-item-title">{{ order.productName }}</div>
+          <div class="payment-item-subtitle">{{ order.companyName }}</div>
+          <div class="payment-order-code">{{ order.orderCode }}</div>
+          <div class="payment-qty">Qty. {{ order.quantity }}</div>
+        </div>
+        <div class="payment-price">${{ order.price.toFixed(2) }}</div>
+      </div>
+
+      <div class="payment-total-row">
+        <span>Total</span>
+        <span>${{ order.price.toFixed(2) }}</span>
+      </div>
+    </div>
+
+    <p class="payment-note">
+      This confirms payment has been collected for this order — no card details are processed here.
+    </p>
+
+    <div class="payment-actions">
+      <button class="btn-outline" (click)="returnToDashboard()" [disabled]="paying">
+        Cancel
+      </button>
+      <button class="btn-submit" (click)="pay()" [disabled]="paying">
+        {{ paying ? 'Processing…' : 'Pay' }}
+      </button>
+    </div>
+
+  </div>
+
+  <div *ngIf="paid" class="payment-confirmation">
+    <div class="payment-confirmation-icon">✓</div>
+    <h1>Payment Recorded</h1>
+    <p>This order has been marked as submitted.</p>
+    <button class="btn-submit" (click)="returnToDashboard()">
+      Return to Dashboard
+    </button>
+  </div>
+
+</div>

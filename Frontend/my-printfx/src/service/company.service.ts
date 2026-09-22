@@ -19,8 +19,16 @@ export class CompanyService {
     return this.http.get<Company[]>(`${this.apiUrl}/company`);
   }
 
+  getCompanyById(id: number): Observable<Company> {
+    return this.http.get<Company>(`${this.apiUrl}/company/${id}`);
+  }
+
   addCompany(formData: FormData): Observable<Company> {
     return this.http.post<Company>(`${this.apiUrl}/companies`, formData);
+  }
+
+  deleteCompany(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/company/${id}`);
   }
   
   

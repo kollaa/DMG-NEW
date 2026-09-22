@@ -26,6 +26,8 @@ export class AuthService {
 
   }
 
+  
+
   login(credentials: { username: string; password: string; rememberMe?: boolean }): Observable<any> {
     console.log("Login attempt by:", credentials.rememberMe);
     
@@ -94,8 +96,13 @@ export class AuthService {
     return this.userSubject.value;
   }
 
+  // Fixed: login() stores the JWT under the key "token" (in either
+  // localStorage or sessionStorage depending on rememberMe), but this used
+  // to read from "authToken" — a key nothing ever wrote to. That meant this
+  // always returned null, so no outgoing request has ever actually carried
+  // a real JWT.
   getToken(): string | null {
-    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
   }
 
 }

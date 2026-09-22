@@ -1,30 +1,71 @@
-<div class="app-container">
-  
-  <nav class="navbar">
-    <!-- Left Side: Local Movies & Home -->
+<div class="app-container" [ngClass]="{'logged-in': loggedinUser(), 'logged-out': !loggedinUser()}">
+
+  <nav class="navbar" [class.navbar-themed]="activeCompany" [style.background]="navbarColor" *ngIf="loggedinUser()">
     <div class="inline-container">
-      <a class="nav-link" routerLink="login">
-          <img src="assets\images\DMG_Full_Color.svg" alt="Home Icon" class="icon-image">
+      <a class="nav-link" routerLink="/dashboard">
+
+        <!-- Show company logo when on products page, default logo otherwise -->
+        <img
+          *ngIf="activeCompany && activeCompany.imageUrl; else defaultLogo"
+          [src]="activeCompany.imageUrl"
+          [alt]="activeCompany.name"
+          class="icon-image"
+        />
+        <ng-template #defaultLogo>
+          <img src="assets/images/holdenconner.png" alt="DMG Logo" class="icon-image" />
+        </ng-template>
+
       </a>
-  </div>
-  
-    <!-- Right Side: Login, Logout, User Info -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent1">
+    </div>
+    <div class="navbar-right">
       <ul class="navbar-nav">
-        <li class="nav-item active" *ngIf="loggedinUser()">
-          <i class="material-icons other_icon">person</i> {{ this.user }}
+        <li class="nav-item notifications-nav-item">
+          <i class="material-icons other_icon" (click)="toggleNotifications()" title="Notifications">notifications</i>
+          <span class="notification-badge" *ngIf="notifications.length > 0">{{ notifications.length }}</span>
+          <div class="notifications-dropdown" *ngIf="showNotifications">
+            <div class="notifications-header">Notifications</div>
+            <div class="notifications-body">
+              <p class="no-notifications" *ngIf="notifications.length === 0">No new notifications</p>
+              <div class="notification-item" *ngFor="let n of notifications">
+                <div class="notification-message">{{ n.message }}</div>
+                <div class="notification-actions" *ngIf="n.type === 'approval_request'">
+                  <button class="notification-approve-btn" (click)="approveFromNotification(n)">
+                    Approve
+                  </button>
+                  <button class="notification-reject-btn" (click)="rejectFromNotification(n)">
+                    Reject
+                  </button>
+                </div>
+                <div class="notification-actions" *ngIf="n.type !== 'approval_request'">
+                  <button class="notification-dismiss-btn" (click)="dismissNotification(n)">
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </li>
-        <li class="nav-item active" *ngIf="!loggedinUser()">
-          <a class="nav-link" routerLink="/login">Login</a>
+        <li class="nav-item cart-nav-item">
+          <i class="material-icons other_icon cart-icon" (click)="goToCart()" title="Cart">shopping_cart</i>
+          <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
         </li>
-        <li class="nav-item active" *ngIf="loggedinUser()">
-          <a class="nav-link" (click)="logout()">Logout</a>
-        </li> 
+        <li class="nav-item username">{{ user }}</li>
+        <li class="nav-item">
+          <a class="logout-btn" (click)="logout()">Logout</a>
+        </li>
       </ul>
     </div>
   </nav>
-  
-  <router-outlet></router-outlet>
+
+  <div class="login-page" *ngIf="!loggedinUser()">
+    <div class="login-logo-wrapper">
+      <img src="assets/images/holdenconner.png" alt="DMG Logo" class="login-logo">
+    </div>
+    <router-outlet></router-outlet>
+  </div>
+
+  <div class="page-content" *ngIf="loggedinUser()">
+    <router-outlet></router-outlet>
+  </div>
+
 </div>
-
-
