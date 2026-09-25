@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { AppNotification } from '../Bean/Notification';
+import { environment } from '../app/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
 
-  private readonly apiUrl = 'http://localhost:8080/api/notifications';
+  private readonly apiUrl =  `${environment.apiUrl}/api/notifications`;
 
   private notificationsSubject = new BehaviorSubject<AppNotification[]>([]);
   notifications$ = this.notificationsSubject.asObservable();

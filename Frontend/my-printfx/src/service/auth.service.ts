@@ -4,6 +4,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import { BehaviorSubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { Company } from '../Bean/company';
+import { environment } from '../app/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,7 @@ export class AuthService {
   isLoggedIn:boolean = false;
   loggedinUser:boolean = false;
 
-  private apiUrl = 'http://localhost:8080/api/customers';
+private apiUrl = `${environment.apiUrl}/api/customers`;
 
   constructor(private http: HttpClient, private router: Router) {
     if (typeof window !== 'undefined' && window.localStorage) {

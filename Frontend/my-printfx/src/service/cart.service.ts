@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { CartItem } from '../Bean/cart-item';
+import { environment } from '../app/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { CartItem } from '../Bean/cart-item';
 export class CartService {
 
   // Matches the same host order.component.ts already uses for the backend.
-  private readonly apiUrl = 'http://localhost:8080/api/orders';
+  private readonly apiUrl =  `${environment.apiUrl}/api/orders`;
 
   private itemsSubject = new BehaviorSubject<CartItem[]>([]);
   items$ = this.itemsSubject.asObservable();

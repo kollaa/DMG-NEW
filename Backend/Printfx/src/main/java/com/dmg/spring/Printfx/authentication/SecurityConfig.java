@@ -1,5 +1,6 @@
 package com.dmg.spring.Printfx.authentication;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -41,9 +42,8 @@ public class SecurityConfig {
                     "/api/customers/companies",
                     "/api/companies/*/products",
                     "/api/companies/*/products/*",
-                    "/images/**",    
-                    "/assets/**"     
-
+                    "/images/**",
+                    "/assets/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -60,12 +60,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
+    public WebMvcConfigurer corsConfigurer(
+            @Value("${app.cors.allowed-origins}") String[] allowedOrigins) {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200")
+                        .allowedOrigins(allowedOrigins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .allowCredentials(true);
@@ -73,8 +74,9 @@ public class SecurityConfig {
 
             @Override
             public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                // Serve images bundled inside the jar (works locally and on Azure)
                 registry.addResourceHandler("/images/**")
-                        .addResourceLocations("file:D:/DMG-NEW/Backend/Printfx/src/main/resources/static/images/");
+                        .addResourceLocations("classpath:/static/images/");
             }
         };
     }
