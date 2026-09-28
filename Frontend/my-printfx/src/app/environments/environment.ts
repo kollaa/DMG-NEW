@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://REPLACE-WITH-AZURE-APP-SERVICE-URL'
+  apiUrl: 'https://dmg-printfx-api-dxbwebbreshhhqgf.centralus-01.azurewebsites.net'
 };
