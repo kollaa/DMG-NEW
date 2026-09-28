@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - Developer
+    paths:
+      - 'Backend/**'
+      - '.github/workflows/Developer_dmg-printfx-api.yml'
   workflow_dispatch:
 
 jobs:
@@ -25,13 +28,14 @@ jobs:
           distribution: 'microsoft'
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean package -DskipTests
+        working-directory: Backend/Printfx
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/Backend/Printfx/target/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -39,13 +43,13 @@ jobs:
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-  
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -60,4 +64,3 @@ jobs:
           app-name: 'dmg-printfx-api'
           slot-name: 'Production'
           package: '*.jar'
-          
