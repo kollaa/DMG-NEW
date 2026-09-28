@@ -9,7 +9,7 @@ on:
       - Developer
     paths:
       - 'Backend/**'
-      - '.github/workflows/Developer_dmg-printfx-api.yml'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
