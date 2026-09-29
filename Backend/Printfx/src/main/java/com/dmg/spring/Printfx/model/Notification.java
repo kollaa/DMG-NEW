@@ -15,40 +15,32 @@ public class Notification {
     @Column(nullable = false)
     private String message;
 
-    // Distinguishes what kind of notification this is, so the frontend
-    // knows whether to show Approve/Reject actions or just display the
-    // message as informational:
-    //   "approval_request" — sent to admins, has Approve/Reject buttons
-    //   "rejection_notice"  — sent to the requester, informational only
+    // Distinguishes what kind of notification this is:
+    //   "approval_request" - order needs approval, sent to admins (Approve/Reject)
+    //   "rejection_notice"  - order was rejected, sent to the requester (info only)
+    //   "signup_request"    - new user signed up, sent to admins (Approve/Reject)
     @Column(nullable = false)
     private String type;
 
-    // The order this notification is about, so the UI can offer an
-    // "Approve" action directly from the notification itself.
-    @Column(nullable = false)
+    // The order this notification is about. NULL for signup notifications.
+    // NOTE: the existing column is NOT NULL; run the ALTER TABLE in the
+    // instructions once so signup notifications can be saved.
+    @Column(nullable = true)
     private Long orderId;
 
-    // Who this notification is for. One row is created per admin recipient
-    // at the time an order goes pending_approval (a "fan-out" rather than
-    // one shared notification), so read/unread status is per-user.
-    //
-    // @JsonIgnore for the same reason as Order.user: Jackson can't
-    // serialize a Hibernate lazy proxy, and this field is never touched
-    // before getMyNotifications() returns the raw list — see getRecipientUserId()
-    // below for the safe, id-only alternative the frontend actually needs.
+    // The user who signed up, for "signup_request" notifications. NULL otherwise.
+    @Column(name = "related_user_id")
+    private Integer relatedUserId;
+
+    // One row per admin recipient (fan-out), so read/unread is per user.
+    // @JsonIgnore: Jackson can't serialize a Hibernate lazy proxy; the
+    // frontend uses getRecipientUserId() instead.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_user_id", nullable = false)
     @JsonIgnore
     private Users recipient;
 
-    // Explicit column name here: "read" is a reserved word in MySQL
-    // (used in LOCK TABLES ... READ), so mapping this field to a column
-    // literally named "read" causes CREATE TABLE to fail with a silent
-    // schema-migration error — Hibernate logs it as a warning rather than
-    // halting, then the *next* migration step (adding a foreign key onto
-    // a table that was never actually created) is what actually surfaces
-    // as a visible startup error, which is misleading if you don't know
-    // to look one step earlier.
+    // "read" is a reserved word in MySQL, hence the explicit column name.
     @Column(name = "is_read", nullable = false)
     private boolean read = false;
 
@@ -92,6 +84,14 @@ public class Notification {
         this.orderId = orderId;
     }
 
+    public Integer getRelatedUserId() {
+        return relatedUserId;
+    }
+
+    public void setRelatedUserId(Integer relatedUserId) {
+        this.relatedUserId = relatedUserId;
+    }
+
     public Users getRecipient() {
         return recipient;
     }
@@ -100,9 +100,7 @@ public class Notification {
         this.recipient = recipient;
     }
 
-    // Safe on an uninitialized lazy proxy — Hibernate can return an id
-    // without loading the rest of the entity. Jackson serializes this as
-    // "recipientUserId" in the JSON response instead of the ignored field.
+    // Safe on an uninitialized lazy proxy; serialized as "recipientUserId".
     public Integer getRecipientUserId() {
         return recipient != null ? recipient.getId() : null;
     }

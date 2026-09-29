@@ -9,6 +9,8 @@ import com.dmg.spring.Printfx.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 
 @Service
@@ -20,9 +22,9 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
 
-    // Notification type constants — match Notification.getType()'s doc comment.
     public static final String TYPE_APPROVAL_REQUEST = "approval_request";
     public static final String TYPE_REJECTION_NOTICE = "rejection_notice";
+    public static final String TYPE_SIGNUP_REQUEST = "signup_request";
 
     public List<Notification> getNotificationsForUser(int userId) {
         return notificationRepository.findByRecipient_IdOrderByCreatedDateDesc(userId);
@@ -38,20 +40,13 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    // Fans out one notification per admin, for a single order that just
-    // went pending_approval. "Admin" is any user with a Role whose name
-    // equals "ADMIN" (case-insensitive) — double check that matches the
-    // actual value in your role table's name column.
+    // One notification per admin for an order that just went pending_approval.
     public void notifyAdminsOfPendingApproval(Order order) {
-        List<Users> admins = userRepository.findAll().stream()
-                .filter(this::isAdmin)
-                .toList();
-
         String message = "Order " + order.getOrderCode() + " ("
                 + order.getProductName() + " x" + order.getQuantity()
                 + ", " + order.getCompanyName() + ") needs your approval.";
 
-        for (Users admin : admins) {
+        for (Users admin : findAdmins()) {
             Notification notification = new Notification();
             notification.setMessage(message);
             notification.setType(TYPE_APPROVAL_REQUEST);
@@ -61,19 +56,34 @@ public class NotificationService {
         }
     }
 
-    private boolean isAdmin(Users user) {
-        if (user.getRoleList() == null) {
-            return false;
+    // One notification per admin for a new signup waiting for approval.
+    public void notifyAdminsOfSignup(Users newUser) {
+        String name = newUser.getFullName() != null ? newUser.getFullName() : newUser.getUsername();
+        String message = "New signup: " + name + " (" + newUser.getUsername() + ") is waiting for approval.";
+
+        for (Users admin : findAdmins()) {
+            Notification notification = new Notification();
+            notification.setMessage(message);
+            notification.setType(TYPE_SIGNUP_REQUEST);
+            notification.setRelatedUserId(newUser.getId());
+            notification.setRecipient(admin);
+            notificationRepository.save(notification);
         }
-        return user.getRoleList().stream()
-                .map(Role::getName)
-                .filter(name -> name != null)
-                .anyMatch(name -> name.equalsIgnoreCase("ADMIN"));
     }
 
-    // Single-recipient notification for the original requester when their
-    // order gets rejected — different from notifyAdminsOfPendingApproval(),
-    // which fans out to every admin. This targets exactly one person.
+    // Once any admin approves/rejects a signup, mark every admin's copy as read
+    // so it stops showing as unread in everyone's bell.
+    @Transactional
+    public void resolveSignupNotifications(int newUserId) {
+        List<Notification> notifications =
+                notificationRepository.findByTypeAndRelatedUserId(TYPE_SIGNUP_REQUEST, newUserId);
+        for (Notification n : notifications) {
+            n.setRead(true);
+        }
+        notificationRepository.saveAll(notifications);
+    }
+
+    // Single-recipient notification when a requester's order is rejected.
     public void notifyRequesterOfRejection(Order order) {
         String message = "Your order " + order.getOrderCode() + " ("
                 + order.getProductName() + " x" + order.getQuantity()
@@ -85,5 +95,21 @@ public class NotificationService {
         notification.setOrderId(order.getId());
         notification.setRecipient(order.getUser());
         notificationRepository.save(notification);
+    }
+
+    private List<Users> findAdmins() {
+        return userRepository.findAll().stream()
+                .filter(this::isAdmin)
+                .toList();
+    }
+
+    private boolean isAdmin(Users user) {
+        if (user.getRoleList() == null) {
+            return false;
+        }
+        return user.getRoleList().stream()
+                .map(Role::getName)
+                .filter(name -> name != null)
+                .anyMatch(name -> name.equalsIgnoreCase("ADMIN"));
     }
 }

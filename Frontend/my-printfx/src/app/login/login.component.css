@@ -31,6 +31,7 @@ label:not(.remember-me) {
 
 /* Inputs */
 .login-container input[type="email"],
+.login-container input[type="text"],
 .login-container input[type="password"] {
   width: 100%;
   padding: 10px 12px;
@@ -171,4 +172,10 @@ label:not(.remember-me) {
   padding: 2rem 1rem;
   box-sizing: border-box;
   width: 120vw;        
+}
+
+.remember-container.signup-row {
+  margin-top: 12px;
+  justify-content: center;
+  gap: 6px;
 }

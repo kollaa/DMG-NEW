@@ -12,6 +12,8 @@ import { OrderComponent } from './order/order.component';
 import { CartComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { PaymentComponent } from './payment/payment.component';
+import { SignupComponent } from './signup/signup.component';
+import { AdminUsersComponent } from './admin-users/admin-users.component';
 
 export const routes: Routes = [
   { 
@@ -52,6 +54,16 @@ export const routes: Routes = [
       import('./add-product-component/add-product-component.component')
       .then(m => m.AddProductComponentComponent),
     canActivate: [authGuard]        // ← added
+  },
+  {
+    path: 'signup',
+    component: SignupComponent,
+    canActivate: [authLoginGuard]
+  },
+  {
+    path: 'admin/users',
+    component: AdminUsersComponent,
+    canActivate: [authGuard]
   },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'payment/:id', component: PaymentComponent},

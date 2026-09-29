@@ -10,6 +10,7 @@
           type="email"
           placeholder="Username"
           formControlName="email"
+          autocomplete="username"
           [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
         />
         <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
@@ -23,6 +24,7 @@
           type="password"
           placeholder="Password"
           formControlName="password"
+          autocomplete="current-password"
           [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
         />
         <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
@@ -42,6 +44,13 @@
         </label>
         <div class="forgot-password">
           <a routerLink="/forgotpassword">Forgot Password?</a>
+        </div>
+      </div>
+
+      <div class="remember-container signup-row">
+        <span class="remember-me">Don't have an account?</span>
+        <div class="forgot-password">
+          <a routerLink="/signup">Sign up</a>
         </div>
       </div>
 

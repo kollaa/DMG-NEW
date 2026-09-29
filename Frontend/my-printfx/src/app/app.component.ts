@@ -8,8 +8,12 @@ import { AuthService } from '../service/auth.service';
 import { CompanyContextService } from '../service/company-contextservice';
 import { CartService } from '../service/cart.service';
 import { NotificationService } from '../service/notification.service';
+import { AdminUserService } from '../service/admin-user.service';
 import { Company } from '../Bean/company';
 import { AppNotification } from '../Bean/Notification';
+
+// Pages a logged-out visitor may open directly (e.g. from a link or a refresh)
+const PUBLIC_PATHS = ['/login', '/signup', '/forgotpassword', '/password-reset', '/verify-otp'];
 
 @Component({
   selector: 'app-root',
@@ -20,7 +24,6 @@ import { AppNotification } from '../Bean/Notification';
 export class AppComponent implements OnInit, OnDestroy {
   user: any = null;
   activeCompany: Company | null = null;
-  backendUrl = 'http://localhost:8080';
   cartCount = 0;
   showNotifications = false;
   notifications: AppNotification[] = [];
@@ -43,7 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private companyContext: CompanyContextService,
     private cartService: CartService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private adminUserService: AdminUserService
   ) {
     this.authService.user$.subscribe(user => {
       this.user = user;
@@ -56,24 +60,24 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.router.navigate(['/login']);
+    // Previously this always navigated to /login, which made /signup (and the
+    // forgot-password pages) impossible to open directly. Now logged-out users
+    // are only sent to /login if they're not already on a public page.
+    const path = typeof window !== 'undefined' ? window.location.pathname : '/login';
+    if (!this.loggedinUser() && !PUBLIC_PATHS.some(p => path.startsWith(p))) {
+      this.router.navigate(['/login']);
+    }
 
     this.cartSub = this.cartService.items$.subscribe(items => {
-      // Only count items still actually "in the cart" — once an order is
-      // submitted (or pending approval), it's done, and shouldn't keep
-      // inflating the badge just because it's still a row in the database.
+      // Only count items still actually "in the cart"
       this.cartCount = items.filter(
         i => i.status === 'ready' || i.status === 'in-progress'
       ).length;
     });
 
     this.notificationSub = this.notificationService.notifications$.subscribe(items => {
-      // Only show unread ones. Without this filter, an already-handled
-      // notification (approved or rejected) stays visible with its
-      // Approve/Reject buttons still clickable, and clicking either one
-      // again throws a "not pending approval" error on the backend — the
-      // order already moved past that status, but nothing here told the
-      // user this notification was stale.
+      // Only show unread ones, so handled notifications don't keep
+      // offering Approve/Reject buttons.
       this.notifications = items.filter(n => !n.read);
     });
 
@@ -107,11 +111,8 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Approves the order tied to this notification. If the approver IS the
-  // order's original requester (self-approval), redirect straight to the
-  // Payment page. Otherwise, just mark the notification read and refresh —
-  // the actual requester will see this order waiting for them under
-  // "Approved — Awaiting Payment" next time they check their own cart.
+  // ── Order approval notifications ─────────────────────────────────
+
   approveFromNotification(notification: AppNotification): void {
     this.cartService.approveOrder(notification.orderId).subscribe({
       next: ({ order, selfApproved }) => {
@@ -125,17 +126,11 @@ export class AppComponent implements OnInit, OnDestroy {
       },
       error: err => {
         console.error('Failed to approve order', err);
-        // Most likely cause: someone already acted on this order (or you
-        // double-clicked). Mark it read anyway so it stops showing as an
-        // actionable item — refresh() will pull the current real state.
         this.notificationService.markRead(notification.id);
       }
     });
   }
 
-  // Rejects the order tied to this notification. No redirect needed —
-  // just marks the notification read and refreshes. The requester gets
-  // their own notification about the rejection from the backend.
   rejectFromNotification(notification: AppNotification): void {
     this.cartService.rejectOrder(notification.orderId).subscribe({
       next: () => {
@@ -149,8 +144,42 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
-  // For informational notifications (rejection notices) that have no
-  // Approve/Reject action — just marks it read so it drops off the list.
+  // ── Signup approval notifications ────────────────────────────────
+  // The backend marks every admin's copy of the signup notification as
+  // read when approving/rejecting, so a refresh() is enough afterwards.
+
+  approveSignupFromNotification(notification: AppNotification): void {
+    if (notification.relatedUserId == null) {
+      this.notificationService.markRead(notification.id);
+      return;
+    }
+    this.adminUserService.approve(notification.relatedUserId).subscribe({
+      next: () => this.notificationService.refresh(),
+      error: err => {
+        console.error('Failed to approve signup', err);
+        this.notificationService.markRead(notification.id);
+      }
+    });
+  }
+
+  rejectSignupFromNotification(notification: AppNotification): void {
+    if (notification.relatedUserId == null) {
+      this.notificationService.markRead(notification.id);
+      return;
+    }
+    if (!confirm('Reject this signup request?')) {
+      return;
+    }
+    this.adminUserService.reject(notification.relatedUserId).subscribe({
+      next: () => this.notificationService.refresh(),
+      error: err => {
+        console.error('Failed to reject signup', err);
+        this.notificationService.markRead(notification.id);
+      }
+    });
+  }
+
+  // For informational notifications (e.g. rejection notices)
   dismissNotification(notification: AppNotification): void {
     this.notificationService.markRead(notification.id);
   }

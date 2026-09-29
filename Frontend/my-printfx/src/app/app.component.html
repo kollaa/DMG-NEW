@@ -28,6 +28,8 @@
               <p class="no-notifications" *ngIf="notifications.length === 0">No new notifications</p>
               <div class="notification-item" *ngFor="let n of notifications">
                 <div class="notification-message">{{ n.message }}</div>
+
+                <!-- Order waiting for approval -->
                 <div class="notification-actions" *ngIf="n.type === 'approval_request'">
                   <button class="notification-approve-btn" (click)="approveFromNotification(n)">
                     Approve
@@ -36,7 +38,23 @@
                     Reject
                   </button>
                 </div>
-                <div class="notification-actions" *ngIf="n.type !== 'approval_request'">
+
+                <!-- New user signup waiting for approval -->
+                <div class="notification-actions" *ngIf="n.type === 'signup_request'">
+                  <button class="notification-approve-btn" (click)="approveSignupFromNotification(n)">
+                    Approve
+                  </button>
+                  <button class="notification-reject-btn" (click)="rejectSignupFromNotification(n)">
+                    Reject
+                  </button>
+                  <a class="notification-link" routerLink="/admin/users" (click)="showNotifications = false">
+                    View all signups
+                  </a>
+                </div>
+
+                <!-- Informational (e.g. order rejected) -->
+                <div class="notification-actions"
+                     *ngIf="n.type !== 'approval_request' && n.type !== 'signup_request'">
                   <button class="notification-dismiss-btn" (click)="dismissNotification(n)">
                     Dismiss
                   </button>

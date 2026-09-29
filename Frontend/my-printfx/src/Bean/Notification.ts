@@ -4,8 +4,9 @@
 export interface AppNotification {
   id: number;
   message: string;
-  type: 'approval_request' | 'rejection_notice';
+  type: 'approval_request' | 'rejection_notice' | 'signup_request';
   orderId: number;
   read: boolean;
   createdDate: Date;
+  relatedUserId?: number | null;
 }

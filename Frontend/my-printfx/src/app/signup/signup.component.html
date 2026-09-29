@@ -1,0 +1,55 @@
+<div class="page-wrapper">
+  <div class="login-container">
+    <h2 class="loginHeader">Create an Account</h2>
+
+    <!-- Shown after a successful signup -->
+    <div *ngIf="successMessage; else signupFormTpl" class="signup-success">
+      <p>{{ successMessage }}</p>
+      <a routerLink="/login" class="submit back-to-login">Back to Login</a>
+    </div>
+
+    <ng-template #signupFormTpl>
+      <form (ngSubmit)="onSubmit()" [formGroup]="signupForm">
+
+        <div class="field-group">
+          <input type="text" placeholder="Full name" formControlName="name" autocomplete="name"
+                 [class.input-error]="showError('name')" />
+          <div class="error-message" *ngIf="showError('name')">Please enter your name.</div>
+        </div>
+
+        <div class="field-group">
+          <input type="email" placeholder="Email" formControlName="email" autocomplete="email"
+                 [class.input-error]="showError('email')" />
+          <div class="error-message" *ngIf="showError('email')">Please enter a valid email.</div>
+        </div>
+
+        <div class="field-group">
+          <input type="password" placeholder="Password (at least 8 characters)" formControlName="password"
+                 autocomplete="new-password" [class.input-error]="showError('password')" />
+          <div class="error-message" *ngIf="showError('password')">Password must be at least 8 characters.</div>
+        </div>
+
+        <div class="field-group">
+          <input type="password" placeholder="Confirm password" formControlName="confirmPassword"
+                 autocomplete="new-password" [class.input-error]="showError('confirmPassword') || mismatch" />
+          <div class="error-message" *ngIf="mismatch">Passwords do not match.</div>
+        </div>
+
+        <div class="error-message global-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+        <button type="submit" class="submit" [disabled]="submitting">
+          {{ submitting ? 'Creating account...' : 'Sign Up' }}
+        </button>
+
+        <p class="signup-note">New accounts are reviewed by an administrator before you can log in.</p>
+
+        <div class="remember-container signup-row">
+          <span class="remember-me">Already have an account?</span>
+          <div class="forgot-password">
+            <a routerLink="/login">Log in</a>
+          </div>
+        </div>
+      </form>
+    </ng-template>
+  </div>
+</div>
