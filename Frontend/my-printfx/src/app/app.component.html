@@ -67,7 +67,7 @@
           <i class="material-icons other_icon cart-icon" (click)="goToCart()" title="Cart">shopping_cart</i>
           <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
         </li>
-        <li class="nav-item username">{{ user }}</li>
+        <li class="nav-item username">{{ displayName }}</li>
         <li class="nav-item">
           <a class="logout-btn" (click)="logout()">Logout</a>
         </li>

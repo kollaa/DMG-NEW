@@ -3,13 +3,16 @@ package com.dmg.spring.Printfx.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dmg.spring.Printfx.model.AccountStatus;
+import com.dmg.spring.Printfx.model.Role;
 import com.dmg.spring.Printfx.model.Users;
+import com.dmg.spring.Printfx.repository.RoleRepository;
 import com.dmg.spring.Printfx.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -17,8 +20,14 @@ import jakarta.transaction.Transactional;
 @Service
 public class UserService {
 
+	/** Role given to everyone who signs up. Admins are only ever assigned manually. */
+	public static final String CUSTOMER_ROLE = "CUSTOMER";
+
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -71,7 +80,7 @@ public class UserService {
 		user.setPassword(passwordEncoder.encode(rawPassword));
 		user.setStatus(AccountStatus.PENDING);
 		user.setRememberMe(false);
-		user.setRoleList(new HashSet<>()); // no roles = normal user, never admin
+		user.setRoleList(new HashSet<>(Set.of(getOrCreateCustomerRole())));
 		return userRepository.save(user);
 	}
 
@@ -89,13 +98,26 @@ public class UserService {
 		return user;
 	}
 
-	/** True if the user has a role whose name contains "ADMIN" (ADMIN or ROLE_ADMIN). */
+	/** True if the user has the ADMIN role (same rule NotificationService uses). */
 	public boolean isAdmin(String username) {
+		if (username == null) {
+			return false;
+		}
 		Users user = userRepository.findByUsername(username);
 		return user != null
 				&& user.getRoleList() != null
 				&& user.getRoleList().stream()
-					.anyMatch(r -> r.getName() != null && r.getName().toUpperCase().contains("ADMIN"));
+					.map(Role::getName)
+					.anyMatch(name -> "ADMIN".equalsIgnoreCase(name) || "ROLE_ADMIN".equalsIgnoreCase(name));
+	}
+
+	/** Finds the CUSTOMER role, creating it the first time it's needed. */
+	private Role getOrCreateCustomerRole() {
+		return roleRepository.findByName(CUSTOMER_ROLE).orElseGet(() -> {
+			Role role = new Role();
+			role.setName(CUSTOMER_ROLE);
+			return roleRepository.save(role);
+		});
 	}
 
 	@Transactional

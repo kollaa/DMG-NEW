@@ -9,15 +9,17 @@ import { environment } from '../app/environments/environment';
 })
 export class NotificationService {
 
-  private readonly apiUrl =  `${environment.apiUrl}/api/notifications`;
+  private readonly apiUrl = `${environment.apiUrl}/api/notifications`;
 
   private notificationsSubject = new BehaviorSubject<AppNotification[]>([]);
   notifications$ = this.notificationsSubject.asObservable();
 
+  private eventSource?: EventSource;
+  private reconnectTimer?: ReturnType<typeof setTimeout>;
+
   constructor(private http: HttpClient) {
-    // Deliberately NOT auto-fetching here — same reasoning as CartService:
-    // this service is instantiated before login happens, so refresh() must
-    // be called explicitly once a session actually exists.
+    // Not auto-fetching here: this service is created before login happens,
+    // so refresh() / connect() are called once a session exists.
   }
 
   get notifications(): AppNotification[] {
@@ -36,5 +38,62 @@ export class NotificationService {
       next: () => this.refresh(),
       error: err => console.error('Failed to mark notification read', err)
     });
+  }
+
+  /**
+   * Opens a live connection so the bell updates the moment the backend saves
+   * a new notification. Safe to call repeatedly; it only connects once.
+   */
+  connect(): void {
+    if (typeof window === 'undefined' || typeof EventSource === 'undefined') {
+      return;
+    }
+    if (this.eventSource && this.eventSource.readyState !== EventSource.CLOSED) {
+      return; // already connected (or connecting)
+    }
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return;
+    }
+
+    const es = new EventSource(`${this.apiUrl}/stream?token=${encodeURIComponent(token)}`);
+
+    // Backend saved a new notification for this user
+    es.addEventListener('notification', () => this.refresh());
+
+    // (Re)connected: catch up on anything missed while disconnected
+    es.addEventListener('connected', () => this.refresh());
+
+    es.onerror = () => {
+      // If the connection just dropped, the browser retries by itself.
+      // If it was refused (e.g. expired login), it stays closed: retry later.
+      if (es.readyState === EventSource.CLOSED) {
+        this.eventSource = undefined;
+        this.scheduleReconnect();
+      }
+    };
+
+    this.eventSource = es;
+  }
+
+  /** Call on logout. */
+  disconnect(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
+    }
+    this.eventSource?.close();
+    this.eventSource = undefined;
+    this.notificationsSubject.next([]);
+  }
+
+  private scheduleReconnect(): void {
+    if (this.reconnectTimer) {
+      return;
+    }
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = undefined;
+      this.connect();
+    }, 15_000);
   }
 }

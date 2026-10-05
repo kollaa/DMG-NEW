@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription, interval } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../service/auth.service';
 import { CompanyContextService } from '../service/company-contextservice';
 import { CartService } from '../service/cart.service';
@@ -14,6 +15,10 @@ import { AppNotification } from '../Bean/Notification';
 
 // Pages a logged-out visitor may open directly (e.g. from a link or a refresh)
 const PUBLIC_PATHS = ['/login', '/signup', '/forgotpassword', '/password-reset', '/verify-otp'];
+
+// Backup check in case the live connection is ever down.
+// Normally the bell updates instantly through NotificationService.connect().
+const NOTIFICATION_POLL_MS = 60_000;
 
 @Component({
   selector: 'app-root',
@@ -40,6 +45,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private cartSub?: Subscription;
   private notificationSub?: Subscription;
+  private pollSub?: Subscription;
+  private navSub?: Subscription;
 
   constructor(
     private router: Router,
@@ -84,16 +91,59 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.loggedinUser()) {
       this.cartService.refresh();
       this.notificationService.refresh();
+      this.notificationService.connect();
     }
+
+    // Keep the bell up to date without having to click it:
+    // 1. after every page change (this also covers right after logging in)
+    this.navSub = this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => this.refreshNotificationsIfLoggedIn());
+
+    // 2. every 30 seconds while the tab is visible
+    this.pollSub = interval(NOTIFICATION_POLL_MS)
+      .subscribe(() => this.refreshNotificationsIfLoggedIn());
+  }
+
+  // 3. as soon as the user comes back to this browser tab
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    this.refreshNotificationsIfLoggedIn();
+  }
+
+  private refreshNotificationsIfLoggedIn(): void {
+    if (!this.loggedinUser()) {
+      return;
+    }
+    // Make sure the live connection is open (no-op if it already is).
+    // This also opens it right after logging in.
+    this.notificationService.connect();
+
+    if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+      return; // don't poll a hidden tab
+    }
+    this.notificationService.refresh();
   }
 
   ngOnDestroy(): void {
     this.cartSub?.unsubscribe();
     this.notificationSub?.unsubscribe();
+    this.pollSub?.unsubscribe();
+    this.navSub?.unsubscribe();
   }
 
   logout() {
+    this.notificationService.disconnect();
+    localStorage.removeItem('username');
+    localStorage.removeItem('isAdmin');
     this.authService.logOut();
+  }
+
+  get displayName(): string {
+    if (this.user) {
+      return this.user;
+    }
+    return typeof window !== 'undefined' ? (localStorage.getItem('username') ?? '') : '';
   }
 
   loggedinUser() {

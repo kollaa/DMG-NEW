@@ -41,6 +41,7 @@ export class LoginComponent {
       (response: any) => {
         if (response.token) {
           localStorage.setItem('token', response.token);
+          localStorage.setItem('username', response.username);
           localStorage.setItem('isAdmin', response.admin === 'true' ? 'true' : 'false');
           this.router.navigate(['/dashboard']);
         }

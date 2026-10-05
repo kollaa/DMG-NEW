@@ -1,9 +1,11 @@
 <div class="dashboard-wrapper">
   <div class="dashboard-header">
-    <h4 class="header">Admin Dashboard</h4>
-    <button class="add-company-btn" (click)="openAddCompanyForm()">
-      + Add Company
-    </button>
+    <h4 class="header">{{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}</h4>
+    @if (isAdmin) {
+      <button class="add-company-btn" (click)="openAddCompanyForm()">
+        + Add Company
+      </button>
+    }
   </div>
 
   <div class="dashboard-container">
@@ -13,4 +15,4 @@
       </div>
     }
   </div>
-</div> 
+</div>

@@ -2,7 +2,7 @@
 
   <div class="dashboard-header">
     <a class="back-link" (click)="goBack()">
-      <span class="arrow">&#8249;</span> Return to Admin Dashboard
+      <span class="arrow">&#8249;</span> Return to {{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}
     </a>
     <h4 class="header">Product Dashboard</h4>
     @if (company) {
@@ -79,13 +79,15 @@
         </div>
       }
 
-      <!-- Add Product card -->
-      <div class="product-wrapper">
-        <div class="product-card add-product" (click)="goToAddProduct()">
-          <span class="plus">+</span>
-          <p>Add Product</p>
+      <!-- Add Product card (admins only) -->
+      @if (isAdmin) {
+        <div class="product-wrapper">
+          <div class="product-card add-product" (click)="goToAddProduct()">
+            <span class="plus">+</span>
+            <p>Add Product</p>
+          </div>
         </div>
-      </div>
+      }
 
     </div>
   }

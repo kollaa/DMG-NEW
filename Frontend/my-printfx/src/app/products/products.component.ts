@@ -19,7 +19,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   loading = true;
   companyId!: number;
   backendUrl = 'http://localhost:8080';
-
+  isAdmin = typeof window !== 'undefined' && localStorage.getItem('isAdmin') === 'true';
+  
   private sideBySideKeywords = ['rack', 'brochure', 'door', 'trifold'];
 
   constructor(

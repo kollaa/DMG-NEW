@@ -22,6 +22,9 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationStreamService notificationStreamService;
+
     public static final String TYPE_APPROVAL_REQUEST = "approval_request";
     public static final String TYPE_REJECTION_NOTICE = "rejection_notice";
     public static final String TYPE_SIGNUP_REQUEST = "signup_request";
@@ -53,6 +56,7 @@ public class NotificationService {
             notification.setOrderId(order.getId());
             notification.setRecipient(admin);
             notificationRepository.save(notification);
+            notificationStreamService.notifyUserAfterCommit(admin.getId());
         }
     }
 
@@ -68,6 +72,7 @@ public class NotificationService {
             notification.setRelatedUserId(newUser.getId());
             notification.setRecipient(admin);
             notificationRepository.save(notification);
+            notificationStreamService.notifyUserAfterCommit(admin.getId());
         }
     }
 
@@ -81,6 +86,10 @@ public class NotificationService {
             n.setRead(true);
         }
         notificationRepository.saveAll(notifications);
+        // Clear it from every admin's bell right away
+        for (Notification n : notifications) {
+            notificationStreamService.notifyUserAfterCommit(n.getRecipientUserId());
+        }
     }
 
     // Single-recipient notification when a requester's order is rejected.
@@ -95,6 +104,7 @@ public class NotificationService {
         notification.setOrderId(order.getId());
         notification.setRecipient(order.getUser());
         notificationRepository.save(notification);
+        notificationStreamService.notifyUserAfterCommit(notification.getRecipientUserId());
     }
 
     private List<Users> findAdmins() {

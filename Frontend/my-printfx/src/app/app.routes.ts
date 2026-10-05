@@ -14,6 +14,7 @@ import { CheckoutComponent } from './checkout/checkout.component';
 import { PaymentComponent } from './payment/payment.component';
 import { SignupComponent } from './signup/signup.component';
 import { AdminUsersComponent } from './admin-users/admin-users.component';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { 
@@ -41,7 +42,7 @@ export const routes: Routes = [
   { 
     path: 'addcompany', 
     component: AddCompanyComponentComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, adminGuard]
   },
   { 
     path: 'products/:id', 
@@ -53,7 +54,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./add-product-component/add-product-component.component')
       .then(m => m.AddProductComponentComponent),
-    canActivate: [authGuard]        // ← added
+    canActivate: [authGuard, adminGuard]        // ← added
   },
   {
     path: 'signup',

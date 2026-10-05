@@ -14,7 +14,7 @@ import { CompanyService } from '../../service/company.service';
 export class PrintFxComponent {
 
   companies: Company[] = [];
-
+  isAdmin = typeof window !== 'undefined' && localStorage.getItem('isAdmin') === 'true';
  
   constructor(private router:Router, private companyService: CompanyService) {
     console.log("Hello");
