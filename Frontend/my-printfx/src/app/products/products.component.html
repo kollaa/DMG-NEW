@@ -1,9 +1,95 @@
-<div class="products-container">
-    <h2>Products for {{ companyName }}</h2>
-    <ul>
-      @for (product of products; track product) {
-        <li>{{ product }}</li>
-      }
-    </ul>
+<div class="dashboard-wrapper">
+
+  <div class="dashboard-header">
+    <a class="back-link" (click)="goBack()">
+      <span class="arrow">&#8249;</span> Return to {{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}
+    </a>
+    <h4 class="header">Product Dashboard</h4>
+    @if (company) {
+      <p class="company-name">{{ company.name }}</p>
+    }
   </div>
-  
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="product-grid">
+
+      @for (product of products; track product.id) {
+        <div class="product-wrapper">
+
+          <!-- White preview card — image only -->
+          <div class="product-card" [class.side-by-side]="product.imageUrlBack && isSideBySide(product)">
+            <div class="product-preview">
+
+              @if (!product.imageUrlBack || !isSideBySide(product)) {
+                <!-- Stacked layout (Business Cards) -->
+                <div class="preview-stacked">
+                  <img
+                    class="img-front"
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    (error)="onImageError($event)"
+                  />
+                  @if (product.imageUrlBack) {
+                    <img
+                      class="img-back"
+                      [src]="product.imageUrlBack"
+                      [alt]="product.name + ' back'"
+                      (error)="onImageError($event)"
+                    />
+                  }
+                </div>
+              } @else {
+                <!-- Side by side layout (Rack Cards) -->
+                <div class="preview-side-by-side">
+                  <img
+                    class="img-panel"
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    (error)="onImageError($event)"
+                  />
+                  <img
+                    class="img-panel"
+                    [src]="product.imageUrlBack"
+                    [alt]="product.name + ' back'"
+                    (error)="onImageError($event)"
+                  />
+                </div>
+              }
+
+            </div>
+          </div>
+
+          <!-- Name and button outside the card -->
+          <h3 class="product-name">{{ product.name }}</h3>
+          <button class="start-btn" (click)="startOrder(product)">Start Order</button>
+
+        </div>
+      }
+
+      @if (products.length === 0) {
+        <div class="empty-state">
+          <p>No products set up for this company yet.</p>
+        </div>
+      }
+
+      <!-- Add Product card (admins only) -->
+      @if (isAdmin) {
+        <div class="product-wrapper">
+          <div class="product-card add-product" (click)="goToAddProduct()">
+            <span class="plus">+</span>
+            <p>Add Product</p>
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

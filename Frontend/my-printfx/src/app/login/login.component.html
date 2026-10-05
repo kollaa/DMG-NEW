@@ -1,38 +1,59 @@
-<div class="login-container">
+<div class="page-wrapper">
+  <div class="login-container">
     <h2 class="loginHeader">Marketing Materials Hub</h2>
+
     <form (ngSubmit)="onSubmit()" [formGroup]="loginForm">
-      <div>
-        <label for="email">Email:</label>
-        <input id="email" placeholder="username" type="email" formControlName="email" />
-        
-        <!-- Using *ngIf for conditional rendering -->
-        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-          <div class="error-message">Please enter a valid email.</div>
+
+      <div class="field-group">
+        <input
+          id="email"
+          type="email"
+          placeholder="Username"
+          formControlName="email"
+          autocomplete="username"
+          [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        />
+        <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          Please enter a valid email.
         </div>
       </div>
-  
-      <div>
-        <label for="password">Password:</label>
-        <input id="password" placeholder="password" type="password" formControlName="password" />
-        
-        <!-- Using *ngIf for conditional rendering -->
-        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-          <div class="error-message">Password is required.</div>
+
+      <div class="field-group">
+        <input
+          id="password"
+          type="password"
+          placeholder="Password"
+          formControlName="password"
+          autocomplete="current-password"
+          [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        />
+        <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password is required.
         </div>
       </div>
-      <div *ngIf="errorMessage" class="error-message">
+
+      <div class="error-message global-error" *ngIf="errorMessage">
         {{ errorMessage }}
       </div>
-  
-      <button type="submit" class="submit" [disabled]="loginForm.invalid">Login</button>
-      
-       <div class="remember-container">
-          <div class="remember-me">
-              <input  type="checkbox" formControlName="rememberMe"/> Remember Me
-          </div>
-          <div class="forgot-password">
-            <a routerLink="/forgotpassword" routerLinkActive="active">Forgot Password?</a>
+
+      <button type="submit" class="submit">Login</button>
+
+      <div class="remember-container">
+        <label class="remember-me">
+          <input type="checkbox" formControlName="rememberMe" /> Remember Me
+        </label>
+        <div class="forgot-password">
+          <a routerLink="/forgotpassword">Forgot Password?</a>
         </div>
-       </div>  
+      </div>
+
+      <div class="remember-container signup-row">
+        <span class="remember-me">Don't have an account?</span>
+        <div class="forgot-password">
+          <a routerLink="/signup">Sign up</a>
+        </div>
+      </div>
+
     </form>
+  </div>
 </div>

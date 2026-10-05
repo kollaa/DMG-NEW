@@ -1,8 +1,12 @@
 package com.dmg.spring.Printfx.model;
 
+import java.util.List;
+
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 @Table(name = "companies")
 public class Company {
 	
@@ -22,7 +26,7 @@ public class Company {
     private String imageUrl;
 
 	public Long getId() {
-		return id;
+		return id;	
 	}
 
 	public void setId(Long id) {
@@ -44,6 +48,9 @@ public class Company {
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
 	}
+	
+	@OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    private List<Product> products;
 	
 	
 

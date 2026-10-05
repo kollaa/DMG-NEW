@@ -1,0 +1,104 @@
+.admin-users {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.header-row h2 {
+  margin: 0;
+  color: #1b5e2f;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+th, td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #f5f7f5;
+  font-weight: 600;
+}
+
+.actions-col {
+  white-space: nowrap;
+  text-align: right;
+}
+
+button, .btn-secondary {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-approve {
+  background: #1b5e2f;
+  color: #fff;
+  margin-left: 6px;
+}
+
+.btn-reject {
+  background: #b3261e;
+  color: #fff;
+  margin-left: 6px;
+}
+
+.btn-secondary {
+  background: #eee;
+  color: #222;
+}
+
+.message {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.message.info {
+  background: #e8f5e9;
+  color: #1b5e2f;
+}
+
+.message.error {
+  background: #fdecea;
+  color: #b3261e;
+}
+
+.empty {
+  color: #666;
+}

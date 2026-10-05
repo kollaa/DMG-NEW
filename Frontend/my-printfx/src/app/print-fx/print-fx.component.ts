@@ -14,7 +14,7 @@ import { CompanyService } from '../../service/company.service';
 export class PrintFxComponent {
 
   companies: Company[] = [];
-
+  isAdmin = typeof window !== 'undefined' && localStorage.getItem('isAdmin') === 'true';
  
   constructor(private router:Router, private companyService: CompanyService) {
     console.log("Hello");
@@ -26,6 +26,14 @@ export class PrintFxComponent {
       this.companies = data;
     });
   }
+
+  getImageUrl(imageUrl: string): string {
+  if (imageUrl.startsWith('http')) {
+    console.log(imageUrl);
+    return imageUrl; 
+  }
+  return `http://localhost:8080/${imageUrl}`; // ✅ Fix old records
+}
 
   goToProducts(CompanyId: number){
     this.router.navigate(['/products', CompanyId]);

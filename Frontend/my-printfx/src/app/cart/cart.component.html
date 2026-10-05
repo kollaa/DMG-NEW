@@ -1,1 +1,288 @@
-<p>cart works!</p>
+<div class="cart-wrapper">
+
+  <div class="cart-total-row">
+    <span class="cart-total-label">
+      Total: <strong>${{ total.toFixed(2) }}</strong>
+    </span>
+  </div>
+
+  <div class="cart-actions">
+    <button class="btn-outline" (click)="returnToProducts()">
+      Return to Products
+    </button>
+
+    <button class="btn-checkout" (click)="proceedToCheckout()">
+      Proceed to Checkout&nbsp; ${{ total.toFixed(2) }}
+    </button>
+  </div>
+
+  <div class="sort-row">
+    <select
+      class="sort-select"
+      (change)="onSortChange($any($event.target).value)"
+    >
+      <option value="new-old">Date (New-Old)</option>
+      <option value="old-new">Date (Old-New)</option>
+    </select>
+  </div>
+
+  @if (
+    readyItems.length === 0 &&
+    inProgressItems.length === 0 &&
+    pendingPaymentItems.length === 0
+  ) {
+    <div class="empty-cart">
+      <p>Your cart is empty.</p>
+    </div>
+  }
+
+  <!-- Ready for checkout -->
+  @if (readyItems.length > 0) {
+    <div class="cart-header">
+      <span class="col-name">Ready for checkout</span>
+      <span class="col-price">Price</span>
+    </div>
+
+    @for (item of readyItems; track item.id) {
+      <div class="cart-row">
+
+        <div class="cart-thumb-group">
+          <div class="cart-thumb">
+            @if (item.thumbnailDataUrl) {
+              <img
+                [src]="item.thumbnailDataUrl"
+                alt="{{ item.productName }} front"
+              />
+            }
+
+            <span class="order-code">{{ item.orderCode }}</span>
+          </div>
+
+          @if (item.thumbnailDataUrlBack) {
+            <div class="cart-thumb cart-thumb-back">
+              <img
+                [src]="item.thumbnailDataUrlBack"
+                alt="{{ item.productName }} back"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="cart-info">
+          <div class="cart-title">{{ item.productName }}</div>
+          <div class="cart-subtitle">Quantity: {{ item.quantity }}</div>
+
+          <div class="cart-details">
+            <div>{{ item.formDetails?.fullName || '\u2014' }}</div>
+            <div>{{ item.formDetails?.title || '\u2014' }}</div>
+            <div>
+              {{ item.formDetails?.companyName || item.companyName || '\u2014' }}
+            </div>
+            <div>{{ item.formDetails?.address || '\u2014' }}</div>
+            <div>
+              {{ item.formDetails?.cityState || '\u2014' }}{{ item.formDetails?.zipCode ? ' ' + item.formDetails.zipCode : '' }}
+            </div>
+            <div>{{ item.formDetails?.phoneNumber || '\u2014' }}</div>
+            <div>{{ item.formDetails?.email || '\u2014' }}</div>
+          </div>
+
+          <a class="edit-customization-link" (click)="editItem(item)">
+            Edit Customization
+          </a>
+
+          <div class="cart-icon-row">
+            <span
+              class="icon"
+              title="Duplicate"
+              (click)="duplicateItem(item)"
+            >
+              <i class="material-icons">content_copy</i>
+            </span>
+
+            <span class="icon" title="Add to favorites">
+              <i class="material-icons">favorite_border</i>
+            </span>
+
+            <span class="icon" title="History">
+              <i class="material-icons">history</i>
+            </span>
+          </div>
+        </div>
+
+        <div class="cart-row-actions">
+          <button class="btn-remove-row" (click)="removeItem(item)">
+            Remove
+          </button>
+
+          <div class="cart-price">${{ item.price.toFixed(2) }}</div>
+        </div>
+
+      </div>
+    }
+  }
+
+  <!-- In progress -->
+  @if (inProgressItems.length > 0) {
+    <div class="cart-header in-progress-header">
+      <span class="col-name">In progress</span>
+      <span class="col-progress">% Complete</span>
+    </div>
+
+    @for (item of inProgressItems; track item.id) {
+      <div class="cart-row">
+
+        <div class="cart-thumb-group">
+          <div class="cart-thumb">
+            @if (item.thumbnailDataUrl) {
+              <img
+                [src]="item.thumbnailDataUrl"
+                alt="{{ item.productName }} front"
+              />
+            }
+
+            <span class="order-code">{{ item.orderCode }}</span>
+          </div>
+
+          @if (item.thumbnailDataUrlBack) {
+            <div class="cart-thumb cart-thumb-back">
+              <img
+                [src]="item.thumbnailDataUrlBack"
+                alt="{{ item.productName }} back"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="cart-info">
+          <div class="cart-title">{{ item.productName }}</div>
+          <div class="cart-subtitle">Quantity: {{ item.quantity }}</div>
+
+          <div class="cart-details">
+            <div>{{ item.formDetails?.fullName || '\u2014' }}</div>
+            <div>{{ item.formDetails?.title || '\u2014' }}</div>
+            <div>
+              {{ item.formDetails?.companyName || item.companyName || '\u2014' }}
+            </div>
+            <div>{{ item.formDetails?.address || '\u2014' }}</div>
+            <div>
+              {{ item.formDetails?.cityState || '\u2014' }}{{ item.formDetails?.zipCode ? ' ' + item.formDetails.zipCode : '' }}
+            </div>
+            <div>{{ item.formDetails?.phoneNumber || '\u2014' }}</div>
+            <div>{{ item.formDetails?.email || '\u2014' }}</div>
+          </div>
+
+          <a class="edit-customization-link" (click)="editItem(item)">
+            Edit Customization
+          </a>
+
+          <div class="cart-icon-row">
+            <span
+              class="icon"
+              title="Duplicate"
+              (click)="duplicateItem(item)"
+            >
+              <i class="material-icons">content_copy</i>
+            </span>
+
+            <span class="icon" title="Add to favorites">
+              <i class="material-icons">favorite_border</i>
+            </span>
+          </div>
+        </div>
+
+        <!-- Remove and percentage aligned horizontally -->
+        <div class="cart-row-actions">
+          <button class="btn-remove-row" (click)="removeItem(item)">
+            Remove
+          </button>
+
+          <div class="cart-progress">
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                [style.width.%]="item.percentComplete"
+              >
+                {{ item.percentComplete }}%
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    }
+  }
+
+  <!-- Pending payment -->
+  @if (pendingPaymentItems.length > 0) {
+    <div class="cart-header in-progress-header">
+      <span class="col-name">Pending Payment</span>
+      <span class="col-price">Price</span>
+    </div>
+
+    @for (item of pendingPaymentItems; track item.id) {
+      <div class="cart-row">
+
+        <div class="cart-thumb-group">
+          <div class="cart-thumb">
+            @if (item.thumbnailDataUrl) {
+              <img
+                [src]="item.thumbnailDataUrl"
+                alt="{{ item.productName }} front"
+              />
+            }
+
+            <span class="order-code">{{ item.orderCode }}</span>
+          </div>
+
+          @if (item.thumbnailDataUrlBack) {
+            <div class="cart-thumb cart-thumb-back">
+              <img
+                [src]="item.thumbnailDataUrlBack"
+                alt="{{ item.productName }} back"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="cart-info">
+          <div class="cart-title">{{ item.productName }}</div>
+          <div class="cart-subtitle">Quantity: {{ item.quantity }}</div>
+
+          <div class="cart-details">
+            <div>{{ item.formDetails?.fullName || '\u2014' }}</div>
+            <div>{{ item.formDetails?.title || '\u2014' }}</div>
+            <div>
+              {{ item.formDetails?.companyName || item.companyName || '\u2014' }}
+            </div>
+            <div>{{ item.formDetails?.address || '\u2014' }}</div>
+            <div>
+              {{ item.formDetails?.cityState || '\u2014' }}{{ item.formDetails?.zipCode ? ' ' + item.formDetails.zipCode : '' }}
+            </div>
+            <div>{{ item.formDetails?.phoneNumber || '\u2014' }}</div>
+            <div>{{ item.formDetails?.email || '\u2014' }}</div>
+          </div>
+
+          <div class="cart-modified">
+            Approved — awaiting payment
+          </div>
+
+          <div class="cart-icon-row">
+            <button class="pay-now-btn" (click)="payNow(item)">
+              Pay Now
+            </button>
+          </div>
+        </div>
+
+        <div class="cart-row-actions">
+          <button class="btn-remove-row" (click)="removeItem(item)">
+            Remove
+          </button>
+
+          <div class="cart-price">${{ item.price.toFixed(2) }}</div>
+        </div>
+
+      </div>
+    }
+  }
+
+</div>

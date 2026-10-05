@@ -1,12 +1,35 @@
-.navbar { 
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+/* ─── Global Reset ─────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── App Container ────────────────────────────────────── */
+.app-container {
+  min-height: 100vh;
   display: flex;
+  flex-direction: column;
+}
+
+.app-container.logged-out {
+  background-color: #ffffff; 
   align-items: center;
-  justify-content: space-between; 
-  background-color: green;
+}
+
+.app-container.logged-in {
+  background-color: #f5f5f5;
+}
+
+/* ─── Navbar ───────────────────────────────────────────── */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 40px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  width: 100%;
 }
 
 .inline-container {
@@ -14,66 +37,224 @@
   align-items: center;
 }
 
-.navbar-nav {
+.icon-image {
+  height: 70px;        /* ← reduce from 40px to 32px */
+  width: auto;
+  max-width: 120px;    /* ← add this to prevent wide logos stretching */
+  object-fit: contain;
+}
+.navbar-right .navbar-nav {
   display: flex;
   align-items: center;
-  gap: 20px; 
-  margin-left: auto; 
-  list-style: none; 
+  gap: 20px;
+  list-style: none;
 }
 
 .nav-item {
-  list-style-type: none;
-}
-
-.material-icons.md-36 {
-  font-size: 35px;
-  line-height: 2.5;
-  vertical-align: middle; 
-}
-
-.material-icons.other_icon {
-  line-height: 2.5;
-  vertical-align: middle;
-}
-
-.nav-link {
-  display: inline-block;
-  padding: 10px 15px;
-  color: black;
-  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  color: #333;
   cursor: pointer;
-  line-height: 2.5;
 }
 
-.nav-link:hover {
-  color: black;
-  text-decoration: underline;
-}
-
-.icon-image {
-  width: 36px;  /* Adjust the width as needed */
-  height: 36px; /* Adjust the height as needed */
-  margin-right: 8px;  /* Add some space between the image and text */
-  cursor: pointer;  /* Show pointer cursor on hover */
+.other_icon {
+  font-size: 22px;
+  color: #333;
 }
 
 .nav-link {
-  text-decoration: none; /* Remove default underline */
+  text-decoration: none;
+}
+
+/* ─── Login Page ───────────────────────────────────────── */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #ffffff;
+} 
+
+.login-logo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0 30px 0;
+  width: 100%;
+}
+
+
+.login-logo {
+  height: 70px;        /* slightly bigger */
+  width: 350px;
+  object-fit: contain;
+}
+
+/* ─── Page Content (authenticated) ────────────────────── */
+.page-content {
+  flex: 1;
+  width: 100%;
+}
+
+.cart-nav-item {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background:#e53935;
+  color: #1a237e;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+.navbar-themed .other_icon,
+.navbar-themed .username,
+.navbar-themed .logout-btn {
+  color: #ffffff !important;
+}
+
+.navbar-themed .nav-link {
+  background: #ffffff;
+  padding: 6px 14px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
-  color: inherit; /* Inherit color from parent */
-  cursor: pointer; /* Show pointer cursor on hover */
 }
 
-/* Styling the image inside the link */
-.icon-image {
-  width: 70px; /* Set the size of the image */
-  height: auto; /* Keep the aspect ratio */
-  transition: transform 0.3s ease; /* Add smooth transition for hover effect */
+.notifications-nav-item {
+  position: relative;
+  cursor: pointer;
 }
 
-/* Hover effect on the image */
-.icon-image:hover {
-  transform: scale(1.1); /* Slightly enlarge the image on hover */
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background: #e53935;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  border: 1px solid #ffffff;
+}
+
+.notifications-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 12px;
+  width: 340px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.notifications-header {
+  padding: 16px 20px;
+  font-weight: 700;
+  font-size: 16px;
+  background: #1a237e;
+  color: #ffffff;
+}
+
+.notifications-body {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.no-notifications {
+  padding: 24px 16px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}
+
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.notification-message {
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.notification-approve-btn {
+  align-self: flex-start;
+  padding: 8px 20px;
+  border: none;
+  background: #1a237e;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.notification-approve-btn:hover {
+  background: #283593;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.notification-reject-btn {
+  padding: 8px 20px;
+  border: 1px solid #c62828;
+  background: #ffffff;
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.notification-reject-btn:hover {
+  background: #fdecea;
+}
+
+.notification-link {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+}
+
+.nav-item.username {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0 12px;
 }

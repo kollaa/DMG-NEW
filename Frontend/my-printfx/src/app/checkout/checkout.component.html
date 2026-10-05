@@ -1,0 +1,63 @@
+<div class="checkout-wrapper">
+
+  @if (!submitted) {
+
+    <h1 class="checkout-title">Review &amp; Submit Order</h1>
+
+    <div class="checkout-panel">
+      <div class="checkout-header">
+        <span class="col-name">Item</span>
+        <span class="col-qty">Qty.</span>
+        <span class="col-price">Price</span>
+      </div>
+
+      @for (item of readyItems; track item.id) {
+        <div class="checkout-row">
+          <div class="checkout-thumb">
+            @if (item.thumbnailDataUrl) {
+              <img [src]="item.thumbnailDataUrl" alt="{{ item.productName }} preview" />
+            }
+          </div>
+          <div class="checkout-info">
+            <div class="checkout-item-title">{{ item.productName }}</div>
+            <div class="checkout-item-subtitle">{{ item.companyName }}</div>
+            <div class="checkout-order-code">{{ item.orderCode }}</div>
+          </div>
+          <div class="checkout-qty">{{ item.quantity }}</div>
+          <div class="checkout-price">${{ item.price.toFixed(2) }}</div>
+        </div>
+      }
+
+      <div class="checkout-total-row">
+        <span>Total</span>
+        <span>${{ total.toFixed(2) }}</span>
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="checkout-error">{{ errorMessage }}</div>
+    }
+
+    <div class="checkout-actions">
+      <button class="btn-outline" (click)="cancelCheckout()" [disabled]="submitting">
+        Cancel
+      </button>
+      <button class="btn-submit" (click)="submitOrder()" [disabled]="submitting">
+        {{ submitting ? 'Sending…' : 'Send for Approval' }}
+      </button>
+    </div>
+
+  } @else {
+
+    <div class="checkout-confirmation">
+      <div class="checkout-confirmation-icon">✓</div>
+      <h1>Awaiting Approval</h1>
+      <p>An email has been sent to DMG. Your order will proceed once it's approved.</p>
+      <button class="btn-submit" (click)="returnToDashboard()">
+        Return to Dashboard
+      </button>
+    </div>
+
+  }
+
+</div>
