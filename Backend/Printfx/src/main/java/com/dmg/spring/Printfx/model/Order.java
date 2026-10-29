@@ -1,12 +1,9 @@
 package com.dmg.spring.Printfx.model;
 
 import jakarta.persistence.*;
+import com.dmg.spring.Printfx.util.ThumbnailUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
-
-// If your project is on Spring Boot 2.x rather than 3.x, change the
-// "jakarta.persistence.*" import above to "javax.persistence.*" instead —
-// check whichever your existing entities (Company, Customer, Users) use.
 
 @Entity
 @Table(name = "orders")
@@ -45,8 +42,8 @@ public class Order {
     @Column(nullable = false)
     private Integer percentComplete;
 
-    // Base64 PNG snapshot of the customized card canvas. Can be large —
-    // @Lob maps this to a TEXT/CLOB column instead of a small VARCHAR.
+    // Snapshot of the customized card. Shrunk to a small JPEG before saving
+    // (see shrinkThumbnails() below) so the cart loads fast.
     @Lob
     @Column(columnDefinition = "LONGTEXT")
     private String thumbnailDataUrl;
@@ -57,23 +54,14 @@ public class Order {
     @Column(columnDefinition = "LONGTEXT")
     private String thumbnailDataUrlBack;
 
-    // JSON-encoded form field values (fullName, title, address, etc.),
-    // stored as a raw string. Serialize/deserialize with Jackson's
-    // ObjectMapper on the way in/out if you want it typed on the Java side.
+    // JSON-encoded form field values (fullName, title, address, etc.)
     @Lob
     @Column(columnDefinition = "TEXT")
     private String formDetails;
 
-    // Owner of this order. Adjust the relationship/column name if your
-    // Users entity's primary key type or field name differs.
-    //
-    // @JsonIgnore is important here: Jackson has no idea how to serialize
-    // a Hibernate lazy proxy (Users$HibernateProxy) — trying to include
-    // this field directly in a JSON response throws
-    // InvalidDefinitionException ("no properties discovered") and corrupts
-    // the response mid-stream. The frontend never actually needs the full
-    // nested Users object anyway — see getUserId() below for the one thing
-    // it does need.
+    // Owner of this order.
+    // @JsonIgnore: Jackson can't serialize a Hibernate lazy proxy;
+    // the frontend uses getUserId() instead.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
@@ -89,11 +77,20 @@ public class Order {
     protected void onCreate() {
         this.createdDate = LocalDateTime.now();
         this.modifiedDate = LocalDateTime.now();
+        shrinkThumbnails();
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.modifiedDate = LocalDateTime.now();
+        shrinkThumbnails();
+    }
+
+    // Large PNG previews (often 500 KB+) become small JPEGs (~30-60 KB).
+    // Already-small images are left as they are.
+    private void shrinkThumbnails() {
+        this.thumbnailDataUrl = ThumbnailUtil.shrink(this.thumbnailDataUrl);
+        this.thumbnailDataUrlBack = ThumbnailUtil.shrink(this.thumbnailDataUrlBack);
     }
 
     // ── Getters / setters ────────────────────────────────────────────
@@ -210,10 +207,7 @@ public class Order {
         this.user = user;
     }
 
-    // Safe to call even on an uninitialized lazy proxy — Hibernate can
-    // return an entity's id without needing to actually load the rest of
-    // it from the database. This is what Jackson actually serializes as
-    // "userId" in the JSON response, instead of the ignored "user" field.
+    // Safe on an uninitialized lazy proxy; serialized as "userId".
     public Integer getUserId() {
         return user != null ? user.getId() : null;
     }
