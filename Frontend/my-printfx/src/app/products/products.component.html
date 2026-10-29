@@ -2,12 +2,14 @@
 
   <div class="dashboard-header">
     <a class="back-link" (click)="goBack()">
-      <span class="arrow">&#8249;</span> Return to {{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}
+      <span class="arrow">&#8249;</span>
+      @if (categoryKey === 'all') {
+        Return to {{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}
+      } @else {
+        Back to Categories
+      }
     </a>
-    <h4 class="header">Product Dashboard</h4>
-    @if (company) {
-      <p class="company-name">{{ company.name }}</p>
-    }
+    <h4 class="header">{{ categoryName || 'Product Dashboard' }}</h4>
   </div>
 
   @if (loading) {
@@ -75,7 +77,7 @@
 
       @if (products.length === 0) {
         <div class="empty-state">
-          <p>No products set up for this company yet.</p>
+          <p>{{ categoryKey === 'all' ? 'No products set up for this company yet.' : 'No products in this category yet.' }}</p>
         </div>
       }
 

@@ -233,3 +233,26 @@
   color: #999;
   font-size: 14px;
 }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1a237e;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  margin-bottom: 10px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.back-link .arrow {
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  transform: translateY(-2px);   /* lift the ‹ so it lines up with the text */
+}

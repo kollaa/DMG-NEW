@@ -13,7 +13,7 @@
 }
 
 .app-container.logged-out {
-  background-color: #ffffff; 
+  background-color: #ffffff;
   align-items: center;
 }
 
@@ -37,12 +37,17 @@
   align-items: center;
 }
 
+/*
+ * Top-left logo. The Holden Conner logo is a wide wordmark, so the old
+ * max-width of 120px was what kept it small. Width is the limit here.
+ */
 .icon-image {
-  height: 70px;        /* ← reduce from 40px to 32px */
+  height: 56px;
   width: auto;
-  max-width: 120px;    /* ← add this to prevent wide logos stretching */
+  max-width: 260px;
   object-fit: contain;
 }
+
 .navbar-right .navbar-nav {
   display: flex;
   align-items: center;
@@ -75,7 +80,7 @@
   width: 100%;
   min-height: 100vh;
   background-color: #ffffff;
-} 
+}
 
 .login-logo-wrapper {
   display: flex;
@@ -85,9 +90,8 @@
   width: 100%;
 }
 
-
 .login-logo {
-  height: 70px;        /* slightly bigger */
+  height: 70px;
   width: 350px;
   object-fit: contain;
 }
@@ -106,8 +110,8 @@
   position: absolute;
   top: -4px;
   right: -6px;
-  background:#e53935;
-  color: #1a237e;
+  background: #e53935;
+  color: #ffffff;              /* was dark blue on red, hard to read */
   font-size: 11px;
   font-weight: 700;
   min-width: 16px;
@@ -120,12 +124,14 @@
   line-height: 1;
 }
 
+/* ─── Company-colored navbar (inside a company's pages) ─── */
 .navbar-themed .other_icon,
 .navbar-themed .username,
 .navbar-themed .logout-btn {
   color: #ffffff !important;
 }
 
+/* Color logos sit in a white box so they're readable on the colored bar */
 .navbar-themed .nav-link {
   background: #ffffff;
   padding: 6px 14px;
@@ -134,6 +140,7 @@
   align-items: center;
 }
 
+/* ─── Notifications ────────────────────────────────────── */
 .notifications-nav-item {
   position: relative;
   cursor: pointer;
@@ -230,6 +237,8 @@
 
 .notification-actions {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
