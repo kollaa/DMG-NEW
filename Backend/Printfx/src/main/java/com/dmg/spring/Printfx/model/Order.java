@@ -48,13 +48,13 @@ public class Order {
     // Base64 PNG snapshot of the customized card canvas. Can be large —
     // @Lob maps this to a TEXT/CLOB column instead of a small VARCHAR.
     @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String thumbnailDataUrl;
 
     // Same idea, but for the back of the card — only populated for
     // products that actually have a back design (product.imageUrlBack).
     @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "LONGTEXT")
     private String thumbnailDataUrlBack;
 
     // JSON-encoded form field values (fullName, title, address, etc.),
