@@ -10,4 +10,7 @@ import com.dmg.spring.Printfx.model.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 	Optional<Role> findByName(String name);
+
+	// Safe even if the role table has duplicate names: always picks the oldest row
+	Optional<Role> findFirstByNameOrderByIdAsc(String name);
 }

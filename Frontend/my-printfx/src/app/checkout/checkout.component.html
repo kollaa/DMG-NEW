@@ -24,7 +24,7 @@
             <div class="checkout-order-code">{{ item.orderCode }}</div>
           </div>
           <div class="checkout-qty">{{ item.quantity }}</div>
-          <div class="checkout-price">${{ item.price.toFixed(2) }}</div>
+          <div class="checkout-price">{{ item.price > 0 ? '$' + item.price.toFixed(2) : 'Price TBD' }}</div>
         </div>
       }
 

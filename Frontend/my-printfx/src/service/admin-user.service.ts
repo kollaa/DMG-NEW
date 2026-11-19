@@ -11,11 +11,31 @@ export interface PendingUser {
   createdAt: string | null;
 }
 
+export type UserRole = 'ADMIN' | 'VIEWER';
+
+export interface ManagedUser {
+  id: number;
+  name: string | null;
+  email: string;
+  role: UserRole;
+  status: 'APPROVED' | 'PENDING' | 'REJECTED';
+  createdAt: string | null;
+}
+
+export interface NewUserRequest {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminUserService {
   private apiUrl = `${environment.apiUrl}/api/admin/users`;
 
   constructor(private http: HttpClient) {}
+
+  // ── Pending signups ─────────────────────────────────────────
 
   getPendingUsers(): Observable<PendingUser[]> {
     return this.http.get<PendingUser[]>(`${this.apiUrl}/pending`, { headers: this.authHeaders() });
@@ -27,6 +47,31 @@ export class AdminUserService {
 
   reject(id: number): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/${id}/reject`, {}, { headers: this.authHeaders() });
+  }
+
+  // ── User management ─────────────────────────────────────────
+
+  getAllUsers(): Observable<ManagedUser[]> {
+    return this.http.get<ManagedUser[]>(this.apiUrl, { headers: this.authHeaders() });
+  }
+
+  createUser(request: NewUserRequest): Observable<ManagedUser> {
+    return this.http.post<ManagedUser>(this.apiUrl, request, { headers: this.authHeaders() });
+  }
+
+  changeRole(id: number, role: UserRole): Observable<ManagedUser> {
+    return this.http.put<ManagedUser>(`${this.apiUrl}/${id}/role`, { role }, { headers: this.authHeaders() });
+  }
+
+  resetPassword(id: number, password: string): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/${id}/password`, { password }, { headers: this.authHeaders() });
+  }
+
+  deleteUser(id: number, deleteOrders = false): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`, {
+      headers: this.authHeaders(),
+      params: { deleteOrders: String(deleteOrders) }
+    });
   }
 
   private authHeaders(): HttpHeaders {

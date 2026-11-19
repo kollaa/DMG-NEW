@@ -7,11 +7,13 @@
     </a>
     <div class="header-row">
       <h1 class="product-title">{{ product?.name }}</h1>
-      <div class="header-actions">
-        <span class="total-label">Total: <strong>${{ price }}.00</strong></span>
-        <button class="btn-save" (click)="saveOrder()">Save</button>
-        <button class="btn-cart" (click)="addToCart()">Add to Cart</button>
-      </div>
+      @if (canOrder) {
+        <div class="header-actions">
+          <span class="total-label">Total: <strong>{{ priceLabel }}</strong></span>
+          <button class="btn-save" (click)="saveOrder()">Save</button>
+          <button class="btn-cart" (click)="addToCart()">Add to Cart</button>
+        </div>
+      }
     </div>
   </div>
 
@@ -28,15 +30,81 @@
       <!-- ── LEFT: Form ── -->
       <div class="form-panel">
 
+        @if (config) {
+          <!-- CONFIGURED PRODUCT (products.order_config) -->
+          @if (product.description) {
+            <p class="product-description">{{ product.description }}</p>
+          }
+          @if (config.note) {
+            <p class="form-hint">{{ config.note }}</p>
+          }
+
+          @if (downloads.length > 0) {
+            <div class="section-header">
+              <span>Download</span>
+            </div>
+            <div class="download-list">
+              @for (d of downloads; track d.url) {
+                <a class="download-link" [href]="d.url" target="_blank" rel="noopener" download>
+                  <span class="material-icons">download</span> {{ d.label }}
+                </a>
+              }
+            </div>
+          }
+
+          @if (configFields.length > 0) {
+            <div class="section-header">
+              <span>{{ canOrder ? 'Order Details' : 'Customize' }}</span>
+            </div>
+            @for (f of configFields; track f.key) {
+              <div class="form-group">
+                <label [for]="'f-' + f.key">{{ f.label }}{{ f.required ? '*' : '' }}</label>
+                @switch (f.type) {
+                  @case ('select') {
+                    <select [id]="'f-' + f.key" [(ngModel)]="dynForm[f.key]" (ngModelChange)="onFormChange(f.key)">
+                      <option value="">Select…</option>
+                      @for (o of f.options ?? []; track o) {
+                        <option [value]="o">{{ o }}</option>
+                      }
+                    </select>
+                  }
+                  @case ('textarea') {
+                    <textarea [id]="'f-' + f.key" rows="3" [(ngModel)]="dynForm[f.key]"
+                      (ngModelChange)="onFormChange()" [placeholder]="f.placeholder ?? f.label"></textarea>
+                  }
+                  @default {
+                    <input [id]="'f-' + f.key" [type]="f.type ?? 'text'" [(ngModel)]="dynForm[f.key]"
+                      (ngModelChange)="onFormChange()" [placeholder]="f.placeholder ?? f.label" />
+                  }
+                }
+              </div>
+            }
+            @if (!canOrder && (config.overlay === 'info-band' || config.overlay === 'slots')) {
+              <button type="button" class="btn-save btn-download-preview" (click)="downloadPreview()">
+                Download my version (PNG)
+              </button>
+            }
+          }
+
+          @if (formError) {
+            <p class="form-error">{{ formError }}</p>
+          }
+          @if (configFields.length > 0) {
+            <p class="required-note">*required fields</p>
+          }
+        }
+
+        @if (!config) {
         <!-- Customize header -->
         <div class="section-header">
           <span>Customize</span>
           <span class="chevron">&#8964;</span>
         </div>
         <p class="form-hint">The information will be displayed on the card exactly as entered.</p>
+        }
 
         <!-- BUSINESS CARD FORM -->
-        @if (isBusinessCard) {
+        @if (!config && isBusinessCard) {
           <div class="form-group">
             <label>Full Name</label>
             <input type="text" [(ngModel)]="bcForm.fullName"
@@ -90,7 +158,7 @@
         }
 
         <!-- RACK CARD FORM -->
-        @if (isRackCard) {
+        @if (!config && isRackCard) {
           <div class="form-group">
             <label>Phone Number*</label>
             <input type="tel" [(ngModel)]="rcForm.phoneNumber"
@@ -128,37 +196,23 @@
           <p class="required-note">*required fields</p>
         }
 
-        <!-- ── Options Section (ALL products) ── -->
-        <div class="section-header options-header" (click)="toggleOptions()">
-          <span>Options</span>
-          <span class="chevron" [class.open]="optionsOpen">&#8964;</span>
-        </div>
-
-        @if (optionsOpen) {
-          <div class="options-body">
-            <div class="form-group">
-              <label>Quantity</label>
-              <select [(ngModel)]="selectedQuantity"
-                (ngModelChange)="onQuantityChange()" class="qty-select">
-                @for (q of quantities; track q) {
-                  <option [value]="q">{{ q }}</option>
-                }
-              </select>
-            </div>
+        <!-- ── Quantity (every product that can be ordered) ── -->
+        @if (canOrder) {
+          <div class="section-header options-header">
+            <span>Options</span>
           </div>
-        }
-
-        <!-- Quantity always visible below Options toggle -->
-        @if (!optionsOpen) {
           <div class="qty-row">
             <div class="form-group">
-              <label>Quantity</label>
-              <select [(ngModel)]="selectedQuantity"
-                (ngModelChange)="onQuantityChange()" class="qty-select">
-                @for (q of quantities; track q) {
-                  <option [value]="q">{{ q }}</option>
-                }
-              </select>
+              <label for="qty">Quantity</label>
+              @if (quantityChoices; as choices) {
+                <select id="qty" [(ngModel)]="selectedQuantity" class="qty-select">
+                  @for (q of choices; track q) {
+                    <option [ngValue]="q">{{ q }}</option>
+                  }
+                </select>
+              } @else {
+                <input id="qty" type="number" min="1" step="1" [(ngModel)]="customQuantity" class="qty-select" />
+              }
             </div>
           </div>
         }
@@ -175,12 +229,12 @@
           </div>
         </div>
 
-        @if (product.imageUrlBack) {
+        @if (previewViews.length > 1) {
           <div class="toggle-row">
-            <button class="toggle-btn" [class.active]="previewSide === 'front'"
-              (click)="switchSide('front')">Front</button>
-            <button class="toggle-btn" [class.active]="previewSide === 'back'"
-              (click)="switchSide('back')">Back</button>
+            @for (v of previewViews; track v.key) {
+              <button class="toggle-btn" [class.active]="previewSide === v.key"
+                (click)="switchSide(v.key)">{{ v.label }}</button>
+            }
           </div>
         }
       </div>

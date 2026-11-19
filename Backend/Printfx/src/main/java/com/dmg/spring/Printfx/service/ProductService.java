@@ -39,6 +39,11 @@ public class ProductService {
         existing.setDescription(updatedData.getDescription());
         existing.setImageUrl(updatedData.getImageUrl());
         existing.setImageUrlBack(updatedData.getImageUrlBack());
+        // Left alone when the request doesn't send it, so older clients
+        // that only edit name/images don't wipe the order form.
+        if (updatedData.getOrderConfig() != null) {
+            existing.setOrderConfig(updatedData.getOrderConfig());
+        }
 
         return productRepository.save(existing);
     }

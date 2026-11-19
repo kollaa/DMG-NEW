@@ -255,4 +255,21 @@
   line-height: 1;
   display: inline-block;
   transform: translateY(-2px);   /* lift the ‹ so it lines up with the text */
+}  
+/* Product without artwork yet */
+.preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 140px;
+  border: 2px dashed #c7cedb;
+  border-radius: 8px;
+  color: #1a237e;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px;
 }
+.preview-placeholder .material-icons { font-size: 40px; color: #7986cb; }

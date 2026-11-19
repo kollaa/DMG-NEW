@@ -232,8 +232,37 @@ public class OrderService {
                         + "Product: " + order.getProductName() + "\n"
                         + "Quantity: " + order.getQuantity() + "\n"
                         + "Requested by: " + order.getUser().getUsername() + "\n"
+                        + orderDetailsText(order.getFormDetails())
         );
         mailSender.send(message);
+    }
+
+    // The order page stores the filled-in form as JSON, including a
+    // "summary" list of {label, value} pairs in the order the fields were
+    // shown (contact name, division, shipping address...). Puts those in
+    // the approval email so the approver can see what was asked for.
+    private static String orderDetailsText(String formDetailsJson) {
+        if (formDetailsJson == null || formDetailsJson.isBlank()) {
+            return "";
+        }
+        try {
+            com.fasterxml.jackson.databind.JsonNode summary =
+                    new com.fasterxml.jackson.databind.ObjectMapper().readTree(formDetailsJson).path("summary");
+            if (!summary.isArray() || summary.isEmpty()) {
+                return "";
+            }
+            StringBuilder text = new StringBuilder("\nDetails:\n");
+            for (com.fasterxml.jackson.databind.JsonNode line : summary) {
+                String value = line.path("value").asText("");
+                if (!value.isBlank()) {
+                    text.append("  ").append(line.path("label").asText("")).append(": ")
+                        .append(value.replace("\n", ", ")).append("\n");
+                }
+            }
+            return text.toString();
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     // Loads an order and verifies it belongs to the requesting user.

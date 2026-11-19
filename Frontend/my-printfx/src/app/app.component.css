@@ -267,3 +267,10 @@
   color: #333;
   margin: 0 12px;
 }
+.username-link {
+  color: inherit;
+  text-decoration: none;
+}
+.username-link:hover {
+  text-decoration: underline;
+}

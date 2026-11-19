@@ -16,6 +16,7 @@ import { PaymentComponent } from './payment/payment.component';
 import { authLoginGuard } from './auth-login.guard';
 import { authGuard } from './auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { ManageUsersComponent } from './manage-users/manage-users.component';
 
 export const routes: Routes = [
   // ── Public pages ─────────────────────────────────────────
@@ -83,7 +84,11 @@ export const routes: Routes = [
     component: AdminUsersComponent,
     canActivate: [authGuard, adminGuard]
   },
-
+  {
+    path: 'admin/manage-users',
+    component: ManageUsersComponent,
+    canActivate: [authGuard, adminGuard]
+  },
   {
     path: '',
     redirectTo: '/login',

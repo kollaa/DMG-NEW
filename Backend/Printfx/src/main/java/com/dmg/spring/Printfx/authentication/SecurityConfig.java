@@ -76,6 +76,7 @@ public class SecurityConfig {
                     "/api/customers/password-reset",
                     "/api/customers/verify-otp",
                     "/images/**",
+                    "/files/**",
                     "/assets/**"
                 ).permitAll()
 
@@ -123,6 +124,10 @@ public class SecurityConfig {
                 // Serve images bundled inside the jar (works locally and on Azure)
                 registry.addResourceHandler("/images/**")
                         .addResourceLocations("classpath:/static/images/");
+                // Downloadable artwork (letterhead, logos, maps, templates...)
+                // listed in a product's order_config "downloads".
+                registry.addResourceHandler("/files/**")
+                        .addResourceLocations("classpath:/static/files/");
             }
         };
     }

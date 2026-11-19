@@ -29,7 +29,13 @@
           <div class="product-card" [class.side-by-side]="product.imageUrlBack && isSideBySide(product)">
             <div class="product-preview">
 
-              @if (!product.imageUrlBack || !isSideBySide(product)) {
+              @if (!product.imageUrl) {
+                <!-- No artwork uploaded yet -->
+                <div class="preview-placeholder">
+                  <span class="material-icons">{{ isDownloadOnly(product) ? 'download' : 'image' }}</span>
+                  <span>{{ product.name }}</span>
+                </div>
+              } @else if (!product.imageUrlBack || !isSideBySide(product)) {
                 <!-- Stacked layout (Business Cards) -->
                 <div class="preview-stacked">
                   <img
@@ -70,7 +76,9 @@
 
           <!-- Name and button outside the card -->
           <h3 class="product-name">{{ product.name }}</h3>
-          <button class="start-btn" (click)="startOrder(product)">Start Order</button>
+          <button class="start-btn" (click)="startOrder(product)">
+            {{ isDownloadOnly(product) ? 'Download' : 'Start Order' }}
+          </button>
 
         </div>
       }

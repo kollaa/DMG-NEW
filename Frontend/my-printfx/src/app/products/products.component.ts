@@ -5,6 +5,7 @@ import { CompanyService } from '../../service/company.service';
 import { CompanyContextService } from '../../service/company-contextservice';
 import { CategoryService } from '../../service/category.service';
 import { Product } from '../../Bean/product';
+import { isDownloadOnly, parseOrderConfig } from '../../Bean/order-config';
 import { Company } from '../../Bean/company';
 
 @Component({
@@ -107,6 +108,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Failed to load category name', err)
     });
+  }
+
+  /** Letterhead, logos, templates... — opens the download page instead of an order. */
+  isDownloadOnly(product: Product): boolean {
+    return isDownloadOnly(parseOrderConfig(product.orderConfig));
   }
 
   isSideBySide(product: Product): boolean {

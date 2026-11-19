@@ -240,4 +240,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     return this.defaultNavbarColor;
   }
+
+    get isAdminUser(): boolean {
+    return typeof window !== 'undefined' && localStorage.getItem('isAdmin') === 'true';
+  }
+
+  
 }

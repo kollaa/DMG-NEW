@@ -72,6 +72,13 @@
           <div class="cart-title">{{ item.productName }}</div>
           <div class="cart-subtitle">Quantity: {{ item.quantity }}</div>
 
+          @if (item.formDetails?.summary) {
+            <div class="cart-details">
+              @for (line of item.formDetails.summary; track $index) {
+                <div><strong>{{ line.label }}{{ line.label.endsWith('?') ? '' : ':' }}</strong> {{ line.value }}</div>
+              }
+            </div>
+          } @else {
           <div class="cart-details">
             <div>{{ item.formDetails?.fullName || '\u2014' }}</div>
             <div>{{ item.formDetails?.title || '\u2014' }}</div>
@@ -85,6 +92,7 @@
             <div>{{ item.formDetails?.phoneNumber || '\u2014' }}</div>
             <div>{{ item.formDetails?.email || '\u2014' }}</div>
           </div>
+          }
 
           <a class="edit-customization-link" (click)="editItem(item)">
             Edit Customization
@@ -114,7 +122,7 @@
             Remove
           </button>
 
-          <div class="cart-price">${{ item.price.toFixed(2) }}</div>
+          <div class="cart-price">{{ item.price > 0 ? '$' + item.price.toFixed(2) : 'Price TBD' }}</div>
         </div>
 
       </div>
@@ -157,6 +165,13 @@
           <div class="cart-title">{{ item.productName }}</div>
           <div class="cart-subtitle">Quantity: {{ item.quantity }}</div>
 
+          @if (item.formDetails?.summary) {
+            <div class="cart-details">
+              @for (line of item.formDetails.summary; track $index) {
+                <div><strong>{{ line.label }}{{ line.label.endsWith('?') ? '' : ':' }}</strong> {{ line.value }}</div>
+              }
+            </div>
+          } @else {
           <div class="cart-details">
             <div>{{ item.formDetails?.fullName || '\u2014' }}</div>
             <div>{{ item.formDetails?.title || '\u2014' }}</div>
@@ -170,6 +185,7 @@
             <div>{{ item.formDetails?.phoneNumber || '\u2014' }}</div>
             <div>{{ item.formDetails?.email || '\u2014' }}</div>
           </div>
+          }
 
           <a class="edit-customization-link" (click)="editItem(item)">
             Edit Customization
@@ -248,6 +264,13 @@
           <div class="cart-title">{{ item.productName }}</div>
           <div class="cart-subtitle">Quantity: {{ item.quantity }}</div>
 
+          @if (item.formDetails?.summary) {
+            <div class="cart-details">
+              @for (line of item.formDetails.summary; track $index) {
+                <div><strong>{{ line.label }}{{ line.label.endsWith('?') ? '' : ':' }}</strong> {{ line.value }}</div>
+              }
+            </div>
+          } @else {
           <div class="cart-details">
             <div>{{ item.formDetails?.fullName || '\u2014' }}</div>
             <div>{{ item.formDetails?.title || '\u2014' }}</div>
@@ -261,6 +284,7 @@
             <div>{{ item.formDetails?.phoneNumber || '\u2014' }}</div>
             <div>{{ item.formDetails?.email || '\u2014' }}</div>
           </div>
+          }
 
           <div class="cart-modified">
             Approved — awaiting payment
@@ -278,7 +302,7 @@
             Remove
           </button>
 
-          <div class="cart-price">${{ item.price.toFixed(2) }}</div>
+          <div class="cart-price">{{ item.price > 0 ? '$' + item.price.toFixed(2) : 'Price TBD' }}</div>
         </div>
 
       </div>

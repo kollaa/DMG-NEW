@@ -21,6 +21,12 @@ public class Product {
 
     private String description;
 
+    // JSON describing how the product is ordered: which form fields to ask
+    // for, quantity choices, unit price, and downloadable files. NULL means
+    // the original business-card / rack-card form. See sql/sp-product-listing.sql.
+    @Column(name = "order_config", columnDefinition = "TEXT")
+    private String orderConfig;
+
     @ManyToOne
     @JoinColumn(name = "company_id")
     @JsonIgnore
@@ -64,6 +70,14 @@ public class Product {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getOrderConfig() {
+		return orderConfig;
+	}
+
+	public void setOrderConfig(String orderConfig) {
+		this.orderConfig = orderConfig;
 	}
 
 	public Company getCompany() {

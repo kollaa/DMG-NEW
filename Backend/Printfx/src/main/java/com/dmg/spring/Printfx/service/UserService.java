@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,19 +16,25 @@ import com.dmg.spring.Printfx.model.Users;
 import com.dmg.spring.Printfx.repository.RoleRepository;
 import com.dmg.spring.Printfx.repository.UserRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
 
-	/** Role given to everyone who signs up. Admins are only ever assigned manually. */
+	/** Role given to everyone who signs up (shown as "Viewer" in the app). */
 	public static final String CUSTOMER_ROLE = "CUSTOMER";
+	public static final String ADMIN_ROLE = "ADMIN";
 
 	@Autowired
 	private UserRepository userRepository;
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@PersistenceContext
+	private EntityManager em;
 
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -103,7 +110,11 @@ public class UserService {
 		if (username == null) {
 			return false;
 		}
-		Users user = userRepository.findByUsername(username);
+		return isAdmin(userRepository.findByUsername(username));
+	}
+
+	/** Same check on an already-loaded user (no extra database query). */
+	public boolean isAdmin(Users user) {
 		return user != null
 				&& user.getRoleList() != null
 				&& user.getRoleList().stream()
@@ -111,13 +122,87 @@ public class UserService {
 					.anyMatch(name -> "ADMIN".equalsIgnoreCase(name) || "ROLE_ADMIN".equalsIgnoreCase(name));
 	}
 
-	/** Finds the CUSTOMER role, creating it the first time it's needed. */
-	private Role getOrCreateCustomerRole() {
-		return roleRepository.findByName(CUSTOMER_ROLE).orElseGet(() -> {
+	// ── User management (admin "Users" page) ───────────────────────────
+
+	public List<Users> findAllUsers() {
+		return userRepository.findAll(Sort.by("username"));
+	}
+
+	public long countAdmins() {
+		return userRepository.findAll().stream().filter(this::isAdmin).count();
+	}
+
+	/** Account created by an admin: active immediately, with the chosen role. */
+	@Transactional
+	public Users createUser(String fullName, String email, String rawPassword, String roleName) {
+		Users user = new Users();
+		user.setUsername(email);
+		user.setFullName(fullName);
+		user.setPassword(passwordEncoder.encode(rawPassword));
+		user.setStatus(AccountStatus.APPROVED);
+		user.setRememberMe(false);
+		user.setRoleList(new HashSet<>(Set.of(getOrCreateRole(roleName))));
+		return userRepository.save(user);
+	}
+
+	/** Replaces the user's role(s) with exactly one role. */
+	@Transactional
+	public Optional<Users> changeRole(int id, String roleName) {
+		Optional<Users> user = userRepository.findUserById(id);
+		user.ifPresent(u -> {
+			u.setRoleList(new HashSet<>(Set.of(getOrCreateRole(roleName))));
+			userRepository.save(u);
+		});
+		return user;
+	}
+
+	public Optional<Users> findById(int id) {
+		return userRepository.findUserById(id);
+	}
+
+	/** How many orders this user has placed (any status). */
+	public long countOrders(int userId) {
+		Object count = em.createNativeQuery("SELECT COUNT(*) FROM orders WHERE user_id = :id")
+				.setParameter("id", userId)
+				.getSingleResult();
+		return ((Number) count).longValue();
+	}
+
+	/**
+	 * Permanently deletes a user and everything that points at them.
+	 * If deleteOrders is false and they have orders, call countOrders() first and
+	 * don't call this; the controller enforces that.
+	 */
+	@Transactional
+	public void deleteUser(int userId, boolean deleteOrders) {
+		if (deleteOrders) {
+			// Notifications about this user's orders (e.g. admins' approval requests)
+			em.createNativeQuery("DELETE FROM notification WHERE order_id IN "
+					+ "(SELECT id FROM (SELECT id FROM orders WHERE user_id = :id) AS o)")
+					.setParameter("id", userId).executeUpdate();
+			em.createNativeQuery("DELETE FROM orders WHERE user_id = :id")
+					.setParameter("id", userId).executeUpdate();
+		}
+		// Notifications sent to this user, and signup notifications about them
+		em.createNativeQuery("DELETE FROM notification WHERE recipient_user_id = :id OR related_user_id = :id")
+				.setParameter("id", userId).executeUpdate();
+		em.createNativeQuery("DELETE FROM user_role WHERE ur_us_id = :id")
+				.setParameter("id", userId).executeUpdate();
+		em.createNativeQuery("DELETE FROM `user` WHERE us_id = :id")
+				.setParameter("id", userId).executeUpdate();
+	}
+
+	/** Finds a role by name, creating it the first time it's needed. */
+	private Role getOrCreateRole(String name) {
+		return roleRepository.findFirstByNameOrderByIdAsc(name).orElseGet(() -> {
 			Role role = new Role();
-			role.setName(CUSTOMER_ROLE);
+			role.setName(name);
 			return roleRepository.save(role);
 		});
+	}
+
+	private Role getOrCreateCustomerRole() {
+		return getOrCreateRole(CUSTOMER_ROLE);
 	}
 
 	@Transactional

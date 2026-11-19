@@ -19,12 +19,12 @@
           <div class="payment-order-code">{{ order.orderCode }}</div>
           <div class="payment-qty">Qty. {{ order.quantity }}</div>
         </div>
-        <div class="payment-price">${{ order.price.toFixed(2) }}</div>
+        <div class="payment-price">{{ order.price > 0 ? '$' + order.price.toFixed(2) : 'Price TBD' }}</div>
       </div>
 
       <div class="payment-total-row">
         <span>Total</span>
-        <span>${{ order.price.toFixed(2) }}</span>
+        <span>{{ order.price > 0 ? '$' + order.price.toFixed(2) : 'Price TBD' }}</span>
       </div>
     </div>
 
