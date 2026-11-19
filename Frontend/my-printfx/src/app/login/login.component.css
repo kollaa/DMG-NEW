@@ -1,0 +1,181 @@
+/* Remove label display — labels not shown in design */
+label:not(.remember-me) {
+  display: none;
+}
+
+/* Card */
+.login-container {
+  background-color: #ffffff;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Heading */
+.loginHeader {
+  color: #1a5c2a;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 2rem;
+}
+
+/* Field groups */
+.field-group {
+  margin-bottom: 16px;
+}
+
+/* Inputs */
+.login-container input[type="email"],
+.login-container input[type="text"],
+.login-container input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #333;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-container input[type="email"]:hover,
+.login-container input[type="password"]:hover {
+  border-color: #2a7a3a;
+}
+
+.login-container input[type="email"]:focus,
+.login-container input[type="password"]:focus {
+  border-color: #2a7a3a;
+  box-shadow: 0 0 0 3px rgba(42, 122, 58, 0.15);
+}
+
+.input-error {
+  border-color: #e24b4a !important;
+}
+
+/* Submit button — always green, never gray */
+.submit {
+  width: 100%;
+  padding: 11px;
+  background-color: #1a5c2a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: background-color 0.2s;
+  opacity: 1 !important;
+}
+
+.submit:hover {
+  background-color: #154d23;
+}
+
+/* Override Angular's disabled styling */
+.submit:disabled {
+  background-color: #1a5c2a !important;
+  opacity: 0.75 !important;
+  cursor: default;
+}
+
+/* Error messages */
+.error-message {
+  color: #e24b4a;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.global-error {
+  margin-bottom: 10px;
+}
+
+/* Remember Me + Forgot Password row */
+.remember-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+/* Custom checkbox */
+.remember-me input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #555;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  background-color: #fff;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.remember-me input[type="checkbox"]:checked {
+  background-color: #1a5c2a;
+  border-color: #1a5c2a;
+}
+
+.remember-me input[type="checkbox"]::before {
+  content: "✔";
+  position: absolute;
+  font-size: 11px;
+  color: white;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+}
+
+.remember-me input[type="checkbox"]:checked::before {
+  display: block;
+}
+
+/* Forgot password */
+.forgot-password a {
+  font-size: 14px;
+  color: #333;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.forgot-password a:hover {
+  color: #1a5c2a;
+}
+
+.page-wrapper {
+  min-height: 60vh;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+  width: 120vw;        
+}
+
+.remember-container.signup-row {
+  margin-top: 12px;
+  justify-content: center;
+  gap: 6px;
+}

@@ -1,0 +1,105 @@
+<div class="dashboard-wrapper">
+
+  <div class="dashboard-header">
+    <a class="back-link" (click)="goBack()">
+      <span class="arrow">&#8249;</span>
+      @if (categoryKey === 'all') {
+        Return to {{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}
+      } @else {
+        Back to Categories
+      }
+    </a>
+    <h4 class="header">{{ categoryName || 'Product Dashboard' }}</h4>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+  }
+
+  @if (!loading) {
+    <div class="product-grid">
+
+      @for (product of products; track product.id) {
+        <div class="product-wrapper">
+
+          <!-- White preview card — image only -->
+          <div class="product-card" [class.side-by-side]="product.imageUrlBack && isSideBySide(product)">
+            <div class="product-preview">
+
+              @if (!product.imageUrl) {
+                <!-- No artwork uploaded yet -->
+                <div class="preview-placeholder">
+                  <span class="material-icons">{{ isDownloadOnly(product) ? 'download' : 'image' }}</span>
+                  <span>{{ product.name }}</span>
+                </div>
+              } @else if (!product.imageUrlBack || !isSideBySide(product)) {
+                <!-- Stacked layout (Business Cards) -->
+                <div class="preview-stacked">
+                  <img
+                    class="img-front"
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    (error)="onImageError($event)"
+                  />
+                  @if (product.imageUrlBack) {
+                    <img
+                      class="img-back"
+                      [src]="product.imageUrlBack"
+                      [alt]="product.name + ' back'"
+                      (error)="onImageError($event)"
+                    />
+                  }
+                </div>
+              } @else {
+                <!-- Side by side layout (Rack Cards) -->
+                <div class="preview-side-by-side">
+                  <img
+                    class="img-panel"
+                    [src]="product.imageUrl"
+                    [alt]="product.name"
+                    (error)="onImageError($event)"
+                  />
+                  <img
+                    class="img-panel"
+                    [src]="product.imageUrlBack"
+                    [alt]="product.name + ' back'"
+                    (error)="onImageError($event)"
+                  />
+                </div>
+              }
+
+            </div>
+          </div>
+
+          <!-- Name and button outside the card -->
+          <h3 class="product-name">{{ product.name }}</h3>
+          <button class="start-btn" (click)="startOrder(product)">
+            {{ isDownloadOnly(product) ? 'Download' : 'Start Order' }}
+          </button>
+
+        </div>
+      }
+
+      @if (products.length === 0) {
+        <div class="empty-state">
+          <p>{{ categoryKey === 'all' ? 'No products set up for this company yet.' : 'No products in this category yet.' }}</p>
+        </div>
+      }
+
+      <!-- Add Product card (admins only) -->
+      @if (isAdmin) {
+        <div class="product-wrapper">
+          <div class="product-card add-product" (click)="goToAddProduct()">
+            <span class="plus">+</span>
+            <p>Add Product</p>
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>

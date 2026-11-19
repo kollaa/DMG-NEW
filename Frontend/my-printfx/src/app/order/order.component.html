@@ -1,0 +1,245 @@
+<div class="order-wrapper">
+
+  <!-- Header -->
+  <div class="order-header">
+    <a class="back-link" (click)="goBack()">
+      <span class="arrow">&#8249;</span> Return to Product Dashboard
+    </a>
+    <div class="header-row">
+      <h1 class="product-title">{{ product?.name }}</h1>
+      @if (canOrder) {
+        <div class="header-actions">
+          <span class="total-label">Total: <strong>{{ priceLabel }}</strong></span>
+          <button class="btn-save" (click)="saveOrder()">Save</button>
+          <button class="btn-cart" (click)="addToCart()">Add to Cart</button>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  }
+
+  @if (!loading && product) {
+    <div class="order-body">
+
+      <!-- ── LEFT: Form ── -->
+      <div class="form-panel">
+
+        @if (config) {
+          <!-- CONFIGURED PRODUCT (products.order_config) -->
+          @if (product.description) {
+            <p class="product-description">{{ product.description }}</p>
+          }
+          @if (config.note) {
+            <p class="form-hint">{{ config.note }}</p>
+          }
+
+          @if (downloads.length > 0) {
+            <div class="section-header">
+              <span>Download</span>
+            </div>
+            <div class="download-list">
+              @for (d of downloads; track d.url) {
+                <a class="download-link" [href]="d.url" target="_blank" rel="noopener" download>
+                  <span class="material-icons">download</span> {{ d.label }}
+                </a>
+              }
+            </div>
+          }
+
+          @if (configFields.length > 0) {
+            <div class="section-header">
+              <span>{{ canOrder ? 'Order Details' : 'Customize' }}</span>
+            </div>
+            @for (f of configFields; track f.key) {
+              <div class="form-group">
+                <label [for]="'f-' + f.key">{{ f.label }}{{ f.required ? '*' : '' }}</label>
+                @switch (f.type) {
+                  @case ('select') {
+                    <select [id]="'f-' + f.key" [(ngModel)]="dynForm[f.key]" (ngModelChange)="onFormChange(f.key)">
+                      <option value="">Select…</option>
+                      @for (o of f.options ?? []; track o) {
+                        <option [value]="o">{{ o }}</option>
+                      }
+                    </select>
+                  }
+                  @case ('textarea') {
+                    <textarea [id]="'f-' + f.key" rows="3" [(ngModel)]="dynForm[f.key]"
+                      (ngModelChange)="onFormChange()" [placeholder]="f.placeholder ?? f.label"></textarea>
+                  }
+                  @default {
+                    <input [id]="'f-' + f.key" [type]="f.type ?? 'text'" [(ngModel)]="dynForm[f.key]"
+                      (ngModelChange)="onFormChange()" [placeholder]="f.placeholder ?? f.label" />
+                  }
+                }
+              </div>
+            }
+            @if (!canOrder && (config.overlay === 'info-band' || config.overlay === 'slots')) {
+              <button type="button" class="btn-save btn-download-preview" (click)="downloadPreview()">
+                Download my version (PNG)
+              </button>
+            }
+          }
+
+          @if (formError) {
+            <p class="form-error">{{ formError }}</p>
+          }
+          @if (configFields.length > 0) {
+            <p class="required-note">*required fields</p>
+          }
+        }
+
+        @if (!config) {
+        <!-- Customize header -->
+        <div class="section-header">
+          <span>Customize</span>
+          <span class="chevron">&#8964;</span>
+        </div>
+        <p class="form-hint">The information will be displayed on the card exactly as entered.</p>
+        }
+
+        <!-- BUSINESS CARD FORM -->
+        @if (!config && isBusinessCard) {
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" [(ngModel)]="bcForm.fullName"
+              (ngModelChange)="onFormChange()" placeholder="Full Name" />
+          </div>
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" [(ngModel)]="bcForm.title"
+              (ngModelChange)="onFormChange()" placeholder="Title" />
+          </div>
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" [(ngModel)]="bcForm.companyName"
+              (ngModelChange)="onFormChange()" placeholder="Company Name" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="bcForm.email"
+              (ngModelChange)="onFormChange()" placeholder="Email" />
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" [(ngModel)]="bcForm.address"
+              (ngModelChange)="onFormChange()" placeholder="Address" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City, State</label>
+              <input type="text" [(ngModel)]="bcForm.cityState"
+                (ngModelChange)="onFormChange()" placeholder="City, State" />
+            </div>
+            <div class="form-group">
+              <label>Zip Code</label>
+              <input type="text" [(ngModel)]="bcForm.zipCode"
+                (ngModelChange)="onFormChange()" placeholder="Zip Code" />
+            </div>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="bcWebsite" [(ngModel)]="bcForm.includeWebsite"
+              (ngModelChange)="onFormChange()" />
+            <label for="bcWebsite">Include Website</label>
+          </div>
+          @if (bcForm.includeWebsite) {
+            <div class="form-group">
+              <label>Website URL</label>
+              <input type="text" [(ngModel)]="bcForm.website"
+                (ngModelChange)="onFormChange()" placeholder="https://yourwebsite.com" />
+            </div>
+          }
+          <p class="required-note">*required fields</p>
+        }
+
+        <!-- RACK CARD FORM -->
+        @if (!config && isRackCard) {
+          <div class="form-group">
+            <label>Phone Number*</label>
+            <input type="tel" [(ngModel)]="rcForm.phoneNumber"
+              (ngModelChange)="onFormChange()" placeholder="Phone Number" />
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" [(ngModel)]="rcForm.address"
+              (ngModelChange)="onFormChange()" placeholder="Address" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City, State</label>
+              <input type="text" [(ngModel)]="rcForm.cityState"
+                (ngModelChange)="onFormChange()" placeholder="City, State" />
+            </div>
+            <div class="form-group">
+              <label>Zip Code</label>
+              <input type="text" [(ngModel)]="rcForm.zipCode"
+                (ngModelChange)="onFormChange()" placeholder="Zip Code" />
+            </div>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="rcWebsite" [(ngModel)]="rcForm.includeWebsite"
+              (ngModelChange)="onFormChange()" />
+            <label for="rcWebsite">Include Website</label>
+          </div>
+          @if (rcForm.includeWebsite) {
+            <div class="form-group">
+              <label>Website URL</label>
+              <input type="text" [(ngModel)]="rcForm.website"
+                (ngModelChange)="onFormChange()" placeholder="https://yourwebsite.com" />
+            </div>
+          }
+          <p class="required-note">*required fields</p>
+        }
+
+        <!-- ── Quantity (every product that can be ordered) ── -->
+        @if (canOrder) {
+          <div class="section-header options-header">
+            <span>Options</span>
+          </div>
+          <div class="qty-row">
+            <div class="form-group">
+              <label for="qty">Quantity</label>
+              @if (quantityChoices; as choices) {
+                <select id="qty" [(ngModel)]="selectedQuantity" class="qty-select">
+                  @for (q of choices; track q) {
+                    <option [ngValue]="q">{{ q }}</option>
+                  }
+                </select>
+              } @else {
+                <input id="qty" type="number" min="1" step="1" [(ngModel)]="customQuantity" class="qty-select" />
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- ── RIGHT: Preview ── -->
+      <div class="preview-panel">
+        <div class="preview-card">
+          <canvas #cardCanvas class="preview-canvas"></canvas>
+          <div class="preview-footer">
+            <span class="preview-icon">&#128269;</span>
+            <span class="preview-text">Preview</span>
+          </div>
+        </div>
+
+        @if (previewViews.length > 1) {
+          <div class="toggle-row">
+            @for (v of previewViews; track v.key) {
+              <button class="toggle-btn" [class.active]="previewSide === v.key"
+                (click)="switchSide(v.key)">{{ v.label }}</button>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+
+</div>

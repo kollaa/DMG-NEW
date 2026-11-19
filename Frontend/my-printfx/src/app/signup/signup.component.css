@@ -1,0 +1,31 @@
+/* Extra styles on top of login.component.css */
+.signup-note {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+.signup-switch {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.signup-success {
+  text-align: center;
+}
+
+.signup-success p {
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.back-to-login {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.signup-row { margin-top: 12px; }

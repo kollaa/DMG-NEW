@@ -1,0 +1,42 @@
+<div class="admin-users">
+  <div class="header-row">
+    <h2>Pending Signups</h2>
+    <div class="header-actions">
+      <button type="button" class="btn-secondary" (click)="load()" [disabled]="loading">Refresh</button>
+      <a routerLink="/dashboard" class="btn-secondary">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div class="message info" *ngIf="infoMessage">{{ infoMessage }}</div>
+  <div class="message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <p *ngIf="loading">Loading...</p>
+
+  <p *ngIf="!loading && !errorMessage && pendingUsers.length === 0" class="empty">
+    No signups are waiting for approval.
+  </p>
+
+  <div class="table-wrap" *ngIf="!loading && pendingUsers.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Signed up</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of pendingUsers">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.createdAt ? (user.createdAt | date:'MMM d, y, h:mm a') : '-' }}</td>
+          <td class="actions-col">
+            <button type="button" class="btn-approve" (click)="approve(user)" [disabled]="busyId === user.id">Approve</button>
+            <button type="button" class="btn-reject" (click)="reject(user)" [disabled]="busyId === user.id">Reject</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="dashboard-wrapper">
+
+  <div class="dashboard-header">
+    <a class="back-link" (click)="goBack()">
+      <span class="arrow">&#8249;</span> Return to {{ isAdmin ? 'Admin Dashboard' : 'Dashboard' }}
+    </a>
+    <h4 class="header">Product Dashboard</h4>
+  </div>
+
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading categories...</p>
+    </div>
+  }
+
+  @if (!loading && errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (!loading && !errorMessage) {
+    <div class="category-grid">
+
+      @for (category of categories; track category.id) {
+        <div class="category-tile" (click)="openCategory(category)">
+          <span class="category-name">{{ category.name }}</span>
+          @if (isAdmin) {
+            <span class="category-count">{{ category.productCount }} product{{ category.productCount === 1 ? '' : 's' }}</span>
+            <button type="button" class="delete-btn" title="Delete category"
+                    (click)="deleteCategory(category, $event)">&times;</button>
+          }
+        </div>
+      }
+
+      <!-- Admins: products not in any category yet (e.g. just added) -->
+      @if (isAdmin && uncategorizedCount > 0) {
+        <div class="category-tile uncategorized" (click)="openUncategorized()">
+          <span class="category-name">Uncategorized</span>
+          <span class="category-count">{{ uncategorizedCount }} product{{ uncategorizedCount === 1 ? '' : 's' }}</span>
+        </div>
+      }
+
+      <!-- Admins: a company with no categories yet can still see its products -->
+      @if (isAdmin && categories.length === 0) {
+        <div class="category-tile uncategorized" (click)="openAll()">
+          <span class="category-name">All Products</span>
+        </div>
+      }
+
+      @if (isAdmin) {
+        <div class="category-tile add-category" (click)="addCategory()">
+          <span class="plus">+</span>
+          <span>Add Category</span>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>
