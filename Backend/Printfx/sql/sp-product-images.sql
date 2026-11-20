@@ -7,6 +7,9 @@
 -- Print-size originals are kept in artwork-originals/scott/ (not deployed).
 -- ============================================================================
 
+-- MySQL Workbench "Safe Updates" mode blocks UPDATEs by name; allow them here.
+SET SQL_SAFE_UPDATES = 0;
+
 SET @company := (SELECT id FROM companies WHERE name = 'Scott' LIMIT 1);
 
 -- Banner Stands (mockup)
@@ -52,6 +55,28 @@ UPDATE products SET image_url = '/images/sp-map-mississippi.jpg', image_url_back
 UPDATE products SET image_url = '/images/sp-folder-front.jpg',
                     image_url_back = '/images/sp-folder-back.jpg'
  WHERE company_id = @company AND name = 'General Sales Folder';
+
+-- Logos: tile/preview = main logo (Landscape is a gallery view in sp-product-listing.sql).
+UPDATE products SET image_url = '/images/sp-logo-main-pdf.png', image_url_back = NULL
+ WHERE company_id = @company AND name = 'Scott Petroleum Logo (PDF)';
+UPDATE products SET image_url = '/images/sp-logo-main.png', image_url_back = NULL
+ WHERE company_id = @company AND name = 'Scott Petroleum Logo (PNG)';
+
+-- Rack Cards: from ag-irrigation-promo-rack-card.pdf (crop marks trimmed, colour-corrected).
+-- Tank Monitoring uses the same pictures for now (user decision 2026-11-20) until it
+-- gets artwork of its own.
+UPDATE products SET image_url = '/images/sp-ag-irrigation-rack-card-front.jpg',
+                    image_url_back = '/images/sp-ag-irrigation-rack-card-back.jpg'
+ WHERE company_id = @company
+   AND name IN ('Ag Irrigation Engine Rentals Rack Card', 'Tank Monitoring Rack Card');
+
+-- PowerPoint template: slide 1 (slides 2-5 are gallery views in sp-product-listing.sql).
+UPDATE products SET image_url = '/images/sp-ppt-slide-1.jpg', image_url_back = NULL
+ WHERE company_id = @company AND name = 'PowerPoint Presentation Template';
+
+-- Thank You Card: the whole outside sheet (as in Outside.pdf); Inside is a gallery view.
+UPDATE products SET image_url = '/images/sp-thank-you-card-outside.jpg', image_url_back = NULL
+ WHERE company_id = @company AND name = 'Thank You Card';
 
 -- Brochures (product mockups)
 UPDATE products SET image_url = '/images/agri-brochure.jpg', image_url_back = NULL

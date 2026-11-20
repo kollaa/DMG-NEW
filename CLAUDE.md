@@ -197,8 +197,16 @@ to `admin/manage-users`. Admin-only buttons (Add Company, Add Product) are hidde
   so typing the sample details reproduces the artwork). `minPreviewWidth` draws a small picture larger.
   Windows.Data.Pdf renders CMYK navy as purple (61,49,99): card front + 3 backs were colour-corrected
   to the PDF-viewer colours (navy 47,52,124) with a ColorMatrix. Other PDF renders (door hangers,
-  folder, bill inserts) were corrected the same way (scratchpad colorfix.ps1). Maps were left as is.
+  folder, bill inserts, brochure spreads, rack card) were corrected the same way (scratchpad
+  colorfix.ps1). Maps were left as is. New PDF renders: check navy (61,49,99 = needs the fix).
   Only these two print typed text; other products' fields are delivery info and stay off the artwork.
+- `/files/**` responses carry `Content-Disposition: attachment` (FileDownloadConfig) so links save
+  the file instead of opening it (the `download` attribute is ignored cross-origin).
+  Logos: two products, "Scott Petroleum Logo (PDF)" (2 files) and "(PNG)" (8 files), files in
+  `static/files/scott/logos/`. The SQL renames the old single "Scott Petroleum Logo" to (PDF).
+  Tank Monitoring Rack Card reuses the Ag Irrigation rack card pictures for now.
+  Downloads can be previewed: clicking a file name shows `preview` (default: the file itself if it is
+  an image) on the canvas; `dark: true` puts it on navy (all-white logos). The icon saves the file.
 - Saved `formDetails` = field values + `summary: [{label, value}]`; the cart and the approval
   email show `summary`, so they don't need per-product code.
 - Download files are served by the backend from `classpath:/static/files/` at `/files/**`
@@ -220,10 +228,10 @@ to `admin/manage-users`. Admin-only buttons (Add Company, Add Product) are hidde
 - Pictures so far (2026-11-18): banner, both bill inserts, all 3 brochures (mockups), location-
   specific + missed-service + invoice door hangers, envelope, flyer, customer portal guide,
   letterhead, business card backs, 4 maps (preview + PDF download in `static/files/scott/`).
-  Still needed from marketing: pictures for logo,
-  notecard, PowerPoint template, promotional products, both SP rack cards, thank-you card
-  (→ `static/images/` + a line in `sp-product-images.sql`), the letterhead .docx, logo PDF/PNG and PowerPoint template downloads (→ `static/files/scott/`),
-  prices, Tank Monitor insert, Bill Insert "autofill/autobill" question, folder/banner mockups.
+  Still needed from marketing: pictures for
+  notecard, promotional products, Tank Monitoring rack card (uses the Ag one for now)
+  (→ `static/images/` + a line in `sp-product-images.sql`), the letterhead .docx download (→ `static/files/scott/`),
+  prices, Tank Monitors Bill Insert artwork (product exists, no picture), Bill Insert "autofill/autobill" question, folder/banner mockups.
   "Promotional Cards" category isn't in the listing (empty).
 
 ### Orders

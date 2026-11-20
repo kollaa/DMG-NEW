@@ -26,6 +26,9 @@
 -- "Price TBD", priced at approval), downloads[] {label, url}, overlay, note.
 -- ============================================================================
 
+-- MySQL Workbench "Safe Updates" mode blocks UPDATEs by name; allow them here.
+SET SQL_SAFE_UPDATES = 0;
+
 -- 1. Column for the order form (Hibernate also adds it on startup; this makes
 --    the script work before the new backend has been deployed).
 SET @has_col := (SELECT COUNT(*) FROM information_schema.columns
@@ -94,8 +97,9 @@ SET @order     := CONCAT('{"mode":"order","fields":[', @contact, ',', @email, ',
 
 -- Banner Stands
 CALL dmg_upsert_product(@company, 'Banner Stands', 'General Table Top Banner',
-  '11.5" x 18" table top banner. $49.99 each.',
-  CONCAT('{"mode":"order","unitPrice":49.99,"fields":[',
+  '',  -- no description line (user request); price shows in the header
+  CONCAT('{"mode":"order","unitPrice":49.99,"frontLabel":"Banner Stand","gallery":[',
+         '{"label":"Banner Artwork","url":"/images/sp-table-top-banner-artwork.jpg"}],"fields":[',
          '{"key":"equipment","label":"Equipment needed?","type":"select","required":true,',
          '"options":["Yes - banner stand and insert","Insert only"]},',
          @contact, ',', @division, ',', @email, ',', @shipping, ']}'));
@@ -105,6 +109,10 @@ CALL dmg_upsert_product(@company, 'Bill Inserts', 'Ag Irrigation Rentals Bill In
   'Statement stuffer for ag irrigation rentals.', @order_div);
 CALL dmg_upsert_product(@company, 'Bill Inserts', 'Customer Portal Bill Insert',
   'Bill stuffer promoting the customer portal.', @order_div);
+-- Listing: "Tank Monitors – can we create an insert for this?" No artwork yet
+-- (shows "Preview coming soon"); add a picture line in sp-product-images.sql when it exists.
+CALL dmg_upsert_product(@company, 'Bill Inserts', 'Tank Monitors Bill Insert',
+  'Bill stuffer promoting tank monitoring.', @order_div);
 
 -- Brochures
 -- Agriculture / Commercial: mockup is image_url; Outside / Inside spreads are extra previews.
@@ -230,26 +238,60 @@ CALL dmg_upsert_product(@company, 'Information Guides', 'Customer Portal Guide',
 CALL dmg_upsert_product(@company, 'Letterhead', 'Scott Petroleum Letterhead', 'Word letterhead template.',
   '{"mode":"download","downloads":[{"label":"Letterhead (Word)","url":"/files/scott/Scott-Petroleum-Letterhead.docx"}]}');
 
--- Logos
-CALL dmg_upsert_product(@company, 'Logos', 'Scott Petroleum Logo', NULL,
-  '{"mode":"download","downloads":[{"label":"Logo (PDF)","url":"/files/scott/Scott-Petroleum-Logo.pdf"},{"label":"Logo (PNG image)","url":"/files/scott/Scott-Petroleum-Logo.png"}]}');
+-- Logos: two products, as in the listing ("PDF" and "PNG (image file)").
+-- Files from marketing's "Logo Exports" folder, in static/files/scott/logos/.
+-- The earlier single "Scott Petroleum Logo" product becomes the PDF one (keeps its id).
+SET @old_logo := (SELECT id FROM products WHERE company_id = @company AND name = 'Scott Petroleum Logo' LIMIT 1);
+SET @pdf_logo := (SELECT id FROM products WHERE company_id = @company AND name = 'Scott Petroleum Logo (PDF)' LIMIT 1);
+UPDATE products SET name = 'Scott Petroleum Logo (PDF)' WHERE id = @old_logo AND @pdf_logo IS NULL;
+
+CALL dmg_upsert_product(@company, 'Logos', 'Scott Petroleum Logo (PDF)',
+  'Scott Petroleum logo as PDF (print quality).',
+  CONCAT('{"mode":"download","frontLabel":"Main","gallery":[',
+         '{"label":"Landscape","url":"/images/sp-logo-landscape-pdf.png"}],"downloads":[',
+         '{"label":"Main logo (PDF)","url":"/files/scott/logos/Scott_logo-main.pdf","preview":"/images/sp-logo-main-pdf.png"},',
+         '{"label":"Landscape logo (PDF)","url":"/files/scott/logos/Scott_logo-landscape.pdf","preview":"/images/sp-logo-landscape-pdf.png"}]}'));
+
+CALL dmg_upsert_product(@company, 'Logos', 'Scott Petroleum Logo (PNG)',
+  'Scott Petroleum logo as PNG image files with a transparent background.',
+  CONCAT('{"mode":"download","frontLabel":"Main","gallery":[',
+         '{"label":"Landscape","url":"/images/sp-logo-landscape.png"}],"downloads":[',
+         '{"label":"Main logo (PNG)","url":"/files/scott/logos/Scott_logo-main.png"},',
+         '{"label":"Main logo, all white (PNG)","url":"/files/scott/logos/Scott_logo-main-all-white.png","dark":true},',
+         '{"label":"Landscape logo (PNG)","url":"/files/scott/logos/Scott_logo-landscape.png"},',
+         '{"label":"Landscape logo, all white (PNG)","url":"/files/scott/logos/Scott_logo-landscape-all-white.png","dark":true},',
+         '{"label":"Wide logo, large (PNG)","url":"/files/scott/logos/Scott-Logo-1.png"},',
+         '{"label":"Favicon 16x16 (PNG)","url":"/files/scott/logos/Scott_logo-main-16x16-favicon.png"},',
+         '{"label":"Favicon 32x32 (PNG)","url":"/files/scott/logos/Scott_logo-main-32x32-favicon.png"},',
+         '{"label":"Favicon 48x48 (PNG)","url":"/files/scott/logos/Scott_logo-main-48x48-favicon.png"}]}'));
 
 -- Maps
 CALL dmg_upsert_product(@company, 'Maps', 'Full Map', 'All Scott Petroleum locations.',
-  '{"mode":"download","downloads":[{"label":"Full Map (PDF)","url":"/files/scott/SP_FullMap-Final.pdf"}]}');
+  '{"mode":"download","downloads":[{"label":"Full Map (PDF)","url":"/files/scott/SP_FullMap-Final.pdf","preview":"/images/sp-map-full.jpg"}]}');
 CALL dmg_upsert_product(@company, 'Maps', 'Mississippi Map', NULL,
-  '{"mode":"download","downloads":[{"label":"Mississippi Map (PDF)","url":"/files/scott/SP_MSMapComp.pdf"}]}');
+  '{"mode":"download","downloads":[{"label":"Mississippi Map (PDF)","url":"/files/scott/SP_MSMapComp.pdf","preview":"/images/sp-map-mississippi.jpg"}]}');
 CALL dmg_upsert_product(@company, 'Maps', 'Louisiana Map', NULL,
-  '{"mode":"download","downloads":[{"label":"Louisiana Map (PDF)","url":"/files/scott/SP_LAMapComp.pdf"}]}');
+  '{"mode":"download","downloads":[{"label":"Louisiana Map (PDF)","url":"/files/scott/SP_LAMapComp.pdf","preview":"/images/sp-map-louisiana.jpg"}]}');
 CALL dmg_upsert_product(@company, 'Maps', 'Arkansas Map', NULL,
-  '{"mode":"download","downloads":[{"label":"Arkansas Map (PDF)","url":"/files/scott/SP_ARMapComp.pdf"}]}');
+  '{"mode":"download","downloads":[{"label":"Arkansas Map (PDF)","url":"/files/scott/SP_ARMapComp.pdf","preview":"/images/sp-map-arkansas.jpg"}]}');
 
 -- Notecards
 CALL dmg_upsert_product(@company, 'Notecards', 'Blank Thank You Notecard', NULL, @order);
 
 -- Presentation Template
-CALL dmg_upsert_product(@company, 'Presentation Template', 'PowerPoint Presentation Template', NULL,
-  '{"mode":"download","downloads":[{"label":"PowerPoint Template (PPTX)","url":"/files/scott/scott-powerpoint-template.pptx"}]}');
+-- The editable PowerPoint (static/files/scott/scott-powerpoint-template.pptx) is the main
+-- download; slide previews were rendered from its PDF export.
+CALL dmg_upsert_product(@company, 'Presentation Template', 'PowerPoint Presentation Template',
+  'Scott Petroleum PowerPoint template (editable .pptx): 5 slide layouts.',
+  CONCAT('{"mode":"download","frontLabel":"Slide 1","gallery":[',
+         '{"label":"Slide 2","url":"/images/sp-ppt-slide-2.jpg"},',
+         '{"label":"Slide 3","url":"/images/sp-ppt-slide-3.jpg"},',
+         '{"label":"Slide 4","url":"/images/sp-ppt-slide-4.jpg"},',
+         '{"label":"Slide 5","url":"/images/sp-ppt-slide-5.jpg"}],"downloads":[',
+         '{"label":"PowerPoint template (PPTX)","url":"/files/scott/scott-powerpoint-template.pptx",',
+         '"preview":"/images/sp-ppt-slide-1.jpg"},',
+         '{"label":"PDF version","url":"/files/scott/scott-powerpoint-template.pdf",',
+         '"preview":"/images/sp-ppt-slide-1.jpg"}]}'));
 
 -- Promotional Products (no fields in the listing yet: contact/shipping + notes)
 SET @promo := CONCAT('{"mode":"order","fields":[', @contact, ',', @division, ',', @email, ',', @shipping, ',',
@@ -270,7 +312,11 @@ CALL dmg_upsert_product(@company, 'Rack Cards', 'Ag Irrigation Engine Rentals Ra
 CALL dmg_upsert_product(@company, 'Rack Cards', 'Tank Monitoring Rack Card', NULL, @order);
 
 -- Thank You Cards
-CALL dmg_upsert_product(@company, 'Thank You Cards', 'Thank You Card', 'Folded card (outside and inside).', @order);
+-- Pictures from Outside.pdf / Inside.pdf (artwork-originals/scott/thank-you-card/).
+CALL dmg_upsert_product(@company, 'Thank You Cards', 'Thank You Card', 'Folded card (outside and inside).',
+  CONCAT('{"mode":"order","frontLabel":"Outside","gallery":[',
+         '{"label":"Inside","url":"/images/sp-thank-you-card-inside.jpg"}],',
+         '"fields":[', @contact, ',', @email, ',', @shipping, ']}'));
 
 DROP PROCEDURE IF EXISTS dmg_upsert_product;
 
