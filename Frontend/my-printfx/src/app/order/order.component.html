@@ -43,11 +43,25 @@
             <div class="section-header">
               <span>Download</span>
             </div>
+            @if (downloads.length > 1) {
+              <p class="form-hint">Click a file to preview it, or the download icon to save it.</p>
+            }
             <div class="download-list">
-              @for (d of downloads; track d.url) {
-                <a class="download-link" [href]="d.url" target="_blank" rel="noopener" download>
-                  <span class="material-icons">download</span> {{ d.label }}
-                </a>
+              @for (d of downloads; track d.url; let i = $index) {
+                <div class="download-item" [class.active]="previewSide === 'd' + i">
+                  @if (d.preview) {
+                    <button type="button" class="download-name" (click)="switchSide('d' + i)"
+                      [attr.aria-label]="'Preview ' + d.label">
+                      <span class="material-icons">visibility</span> {{ d.label }}
+                    </button>
+                  } @else {
+                    <span class="download-name">{{ d.label }}</span>
+                  }
+                  <a class="download-save" [href]="d.url" download [attr.aria-label]="'Download ' + d.label"
+                    [title]="'Download ' + d.label">
+                    <span class="material-icons">download</span>
+                  </a>
+                </div>
               }
             </div>
           }
@@ -225,7 +239,7 @@
           <canvas #cardCanvas class="preview-canvas"></canvas>
           <div class="preview-footer">
             <span class="preview-icon">&#128269;</span>
-            <span class="preview-text">Preview</span>
+            <span class="preview-text">{{ previewCaption }}</span>
           </div>
         </div>
 

@@ -210,12 +210,22 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
+    const download = this.downloadForSide(side);
     img.onload = () => {
-      const scale = Math.max(1, (this.config?.minPreviewWidth ?? 0) / img.width);
+      // Downloads (e.g. a 16x16 favicon) are blown up so they can be seen.
+      const minWidth = download ? 600 : (this.config?.minPreviewWidth ?? 0);
+      const scale = Math.max(1, minWidth / img.width);
       canvas.width  = Math.round(img.width * scale);
       canvas.height = Math.round(img.height * scale);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (download?.dark) {
+        ctx.fillStyle = '#2f347c';               // so an all-white logo is visible
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.imageSmoothingEnabled = img.width >= 100;  // keep tiny icons crisp
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = true;
       finish();
     };
     img.onerror = () => {
@@ -475,6 +485,8 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private imageFor(side: Side): string {
     if (!this.product) return '';
+    const download = this.downloadForSide(side);
+    if (download) return download.preview ?? '';
     if (side.startsWith('g')) {
       const g = this.config?.gallery?.[Number(side.slice(1))];
       return g ? resolveFileUrl(g.url) : this.product.imageUrl;
@@ -511,6 +523,16 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
   switchSide(side: Side): void {
     this.previewSide = side;
     setTimeout(() => this.renderCanvas(), 50);
+  }
+
+  /** Download shown in the preview when previewSide is "d<index>". */
+  private downloadForSide(side: Side) {
+    return side.startsWith('d') ? this.downloads[Number(side.slice(1))] : undefined;
+  }
+
+  /** Label under the preview: the file being previewed, or just "Preview". */
+  get previewCaption(): string {
+    return this.downloadForSide(this.previewSide)?.label ?? 'Preview';
   }
 
   onFormChange(changedKey?: string): void {
@@ -575,7 +597,11 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get downloads() {
-    return (this.config?.downloads ?? []).map(d => ({ label: d.label, url: resolveFileUrl(d.url) }));
+    return (this.config?.downloads ?? []).map(d => {
+      const isImage = /\.(png|jpe?g|gif|webp|svg)$/i.test(d.url);
+      const preview = d.preview ?? (isImage ? d.url : undefined);
+      return { label: d.label, url: resolveFileUrl(d.url), preview: preview ? resolveFileUrl(preview) : undefined, dark: !!d.dark };
+    });
   }
 
   // ── Navigation ──────────────────────────────────────────────────

@@ -34,6 +34,10 @@ export interface OrderField {
 export interface DownloadLink {
   label: string;
   url: string;
+  /** Picture shown when the download is clicked (default: the file itself if it is an image). */
+  preview?: string;
+  /** Show the preview on a dark background (e.g. an all-white logo). */
+  dark?: boolean;
 }
 
 /**
